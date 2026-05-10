@@ -134,9 +134,30 @@ test("readBridgeConfig keeps safe defaults and explicit overrides", () => {
   assert.equal(linuxConfig.refreshEnabled, false);
   assert.equal(linuxCommandConfig.refreshEnabled, false);
   assert.equal(explicitOnConfig.refreshEnabled, true);
+  assert.equal(explicitOnConfig.refreshMode, "live");
   assert.equal(explicitOnConfig.desktopIpcSocketPath, "/tmp/remodex-ipc.sock");
   assert.equal(explicitOffConfig.refreshEnabled, false);
   assert.equal(explicitOffConfig.keepMacAwakeEnabled, false);
+});
+
+test("readBridgeConfig accepts the conservative desktop refresh mode", () => {
+  const config = readBridgeConfig({
+    env: {
+      REMODEX_REFRESH_ENABLED: "true",
+      REMODEX_REFRESH_MODE: "completion",
+    },
+    platform: "darwin",
+    runtimeRoot: "/tmp/remodex-package",
+    fsImpl: {
+      existsSync: () => false,
+      readFileSync: () => {
+        throw new Error("unexpected read");
+      },
+    },
+  });
+
+  assert.equal(config.refreshEnabled, true);
+  assert.equal(config.refreshMode, "completion");
 });
 
 test("readBridgeConfig uses only the packaged relay default outside a source checkout", () => {
@@ -359,6 +380,46 @@ test("rollout growth refreshes are throttled during long runs", async () => {
   });
   await wait(10);
   assert.deepEqual(refreshCalls, ["codex://threads/thread-456"]);
+});
+
+test("completion refresh mode avoids mid-run desktop refreshes", async () => {
+  const refreshCalls = [];
+  let watcherStarted = false;
+
+  const refresher = new CodexDesktopRefresher({
+    enabled: true,
+    refreshMode: "completion",
+    debounceMs: 0,
+    refreshExecutor: async (targetUrl) => {
+      refreshCalls.push(targetUrl);
+    },
+    watchThreadRolloutFactory: () => {
+      watcherStarted = true;
+      return { stop() {} };
+    },
+  });
+
+  refresher.handleInbound(JSON.stringify({
+    method: "turn/start",
+    params: {
+      threadId: "thread-conservative",
+    },
+  }));
+  await wait(10);
+
+  assert.deepEqual(refreshCalls, []);
+  assert.equal(watcherStarted, false);
+
+  refresher.handleOutbound(JSON.stringify({
+    method: "turn/completed",
+    params: {
+      threadId: "thread-conservative",
+      turnId: "turn-conservative",
+    },
+  }));
+  await wait(10);
+
+  assert.deepEqual(refreshCalls, ["codex://threads/thread-conservative"]);
 });
 
 test("turn/completed bypasses duplicate-target dedupe and still stops the watcher", async () => {

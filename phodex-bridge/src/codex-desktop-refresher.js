@@ -18,12 +18,15 @@ const DEFAULT_MID_RUN_REFRESH_THROTTLE_MS = 3_000;
 const DEFAULT_ROLLOUT_LOOKUP_TIMEOUT_MS = 5_000;
 const DEFAULT_ROLLOUT_IDLE_TIMEOUT_MS = 10_000;
 const DEFAULT_CUSTOM_REFRESH_FAILURE_THRESHOLD = 3;
+const DEFAULT_REFRESH_MODE = "live";
+const VALID_REFRESH_MODES = new Set(["live", "completion"]);
 const REFRESH_SCRIPT_PATH = path.join(__dirname, "scripts", "codex-refresh.applescript");
 const NEW_THREAD_DEEP_LINK = "codex://threads/new";
 
 class CodexDesktopRefresher {
   constructor({
     enabled = true,
+    refreshMode = DEFAULT_REFRESH_MODE,
     debounceMs = DEFAULT_DEBOUNCE_MS,
     refreshCommand = "",
     bundleId = DEFAULT_BUNDLE_ID,
@@ -40,6 +43,7 @@ class CodexDesktopRefresher {
     customRefreshFailureThreshold = DEFAULT_CUSTOM_REFRESH_FAILURE_THRESHOLD,
   } = {}) {
     this.enabled = enabled;
+    this.refreshMode = normalizeRefreshMode(refreshMode);
     this.debounceMs = debounceMs;
     this.refreshCommand = refreshCommand;
     this.bundleId = bundleId;
@@ -91,6 +95,10 @@ class CodexDesktopRefresher {
     const method = parsed.method;
     if (method === "thread/start") {
       const target = resolveInboundTarget(method, parsed);
+      if (!this.shouldRefreshDuringRun()) {
+        return;
+      }
+
       if (target?.threadId) {
         this.queueRefresh("phone", target, `phone ${method}`);
         this.ensureWatcher(target.threadId);
@@ -107,6 +115,9 @@ class CodexDesktopRefresher {
     if (method === "turn/start") {
       const target = resolveInboundTarget(method, parsed);
       if (!target) {
+        return;
+      }
+      if (!this.shouldRefreshDuringRun()) {
         return;
       }
 
@@ -142,7 +153,7 @@ class CodexDesktopRefresher {
       this.pendingNewThread = false;
       this.clearFallbackTimer();
       this.queueRefresh("phone", target, `codex ${method}`);
-      if (target?.threadId) {
+      if (this.shouldRefreshDuringRun() && target?.threadId) {
         this.mode = "watching_thread";
         this.ensureWatcher(target.threadId);
       }
@@ -341,7 +352,7 @@ class CodexDesktopRefresher {
 
   // Schedules a single low-cost fallback when a brand new thread id is still unknown.
   scheduleNewThreadFallback() {
-    if (!this.canRefresh()) {
+    if (!this.canRefresh() || !this.shouldRefreshDuringRun()) {
       return;
     }
 
@@ -372,7 +383,7 @@ class CodexDesktopRefresher {
 
   // Keeps one lightweight rollout watcher alive for the current Remodex-controlled thread.
   ensureWatcher(threadId) {
-    if (!this.canRefresh() || !threadId) {
+    if (!this.canRefresh() || !this.shouldRefreshDuringRun() || !threadId) {
       return;
     }
 
@@ -511,6 +522,10 @@ class CodexDesktopRefresher {
     return this.enabled && this.runtimeRefreshAvailable;
   }
 
+  shouldRefreshDuringRun() {
+    return this.refreshMode === "live";
+  }
+
   // Tells the debounce loop whether any phone/completion refresh is still waiting to run.
   hasPendingRefreshWork() {
     return this.pendingCompletionRefresh || this.pendingRefreshKinds.size > 0;
@@ -553,6 +568,11 @@ function readBridgeConfig({
     env
   );
   const explicitRefreshEnabled = readOptionalBooleanEnv(["REMODEX_REFRESH_ENABLED"], env);
+  const refreshMode = normalizeRefreshMode(readFirstDefinedEnv(
+    ["REMODEX_REFRESH_MODE"],
+    DEFAULT_REFRESH_MODE,
+    env
+  ));
   const explicitKeepMacAwakeEnabled = readOptionalBooleanEnv(["REMODEX_KEEP_MAC_AWAKE"], env);
   const persistedKeepMacAwakeEnabled = typeof daemonConfig.keepMacAwakeEnabled === "boolean"
     ? daemonConfig.keepMacAwakeEnabled
@@ -573,6 +593,7 @@ function readBridgeConfig({
     refreshEnabled: explicitRefreshEnabled == null
       ? defaultRefreshEnabled
       : explicitRefreshEnabled,
+    refreshMode,
     refreshDebounceMs: parseIntegerEnv(
       readFirstDefinedEnv(["REMODEX_REFRESH_DEBOUNCE_MS"], String(DEFAULT_DEBOUNCE_MS), env),
       DEFAULT_DEBOUNCE_MS
@@ -738,6 +759,11 @@ function readFirstDefinedEnv(keys, fallback, env = process.env) {
 function parseBooleanEnv(value) {
   const normalized = String(value).trim().toLowerCase();
   return normalized !== "false" && normalized !== "0" && normalized !== "no";
+}
+
+function normalizeRefreshMode(value) {
+  const normalized = String(value || DEFAULT_REFRESH_MODE).trim().toLowerCase();
+  return VALID_REFRESH_MODES.has(normalized) ? normalized : DEFAULT_REFRESH_MODE;
 }
 
 function parseIntegerEnv(value, fallback) {

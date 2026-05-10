@@ -119,6 +119,7 @@ function startBridge({
   const notificationSecret = randomBytes(24).toString("hex");
   const desktopRefresher = new CodexDesktopRefresher({
     enabled: config.refreshEnabled,
+    refreshMode: config.refreshMode,
     debounceMs: config.refreshDebounceMs,
     refreshCommand: config.refreshCommand,
     bundleId: config.codexBundleId,

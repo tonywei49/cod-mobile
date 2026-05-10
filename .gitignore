@@ -41,6 +41,8 @@ output/
 
 # Temp files
 $TMP_PLACEHOLDER
+remodex-*-qr.png
+remodex-*-qr.svg
 
 # Claude project config (local only)
 .claude/

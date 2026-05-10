@@ -111,7 +111,11 @@ final class SubscriptionService {
     }
 
     var hasAppAccess: Bool {
+        #if DEBUG
+        return true
+        #else
         hasProAccess || hasFreeSendAccess
+        #endif
     }
 
     // Counts a valid send attempt for free users even if the turn later fails.

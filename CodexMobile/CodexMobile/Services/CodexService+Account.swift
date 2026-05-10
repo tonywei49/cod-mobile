@@ -815,6 +815,10 @@ extension CodexService {
 
     // Surfaces a softer "npm update available" prompt without overriding stricter compatibility prompts.
     private func evaluateAvailableBridgePackageVersionPromptIfNeeded() {
+        #if DEBUG
+        return
+        #endif
+
         guard isAppInForeground else {
             return
         }

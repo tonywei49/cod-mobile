@@ -17,6 +17,8 @@ RELAY_BIND_HOST="${RELAY_BIND_HOST:-0.0.0.0}"
 RELAY_PORT="${RELAY_PORT:-9000}"
 RELAY_HOSTNAME="${RELAY_HOSTNAME:-}"
 RELAY_URL="${RELAY_URL:-}"
+REMODEX_REFRESH_ENABLED="${REMODEX_REFRESH_ENABLED:-true}"
+REMODEX_REFRESH_MODE="${REMODEX_REFRESH_MODE:-completion}"
 RELAY_BRIDGE_HOST=""
 RELAY_PID=""
 BRIDGE_PID=""
@@ -370,7 +372,10 @@ start_bridge() {
   # This local helper should print the QR in the current terminal immediately.
   # Use the foreground bridge path instead of the macOS launchd wrapper so QR
   # rendering does not depend on daemon state being written back first.
-  REMODEX_RELAY="${RELAY_URL}" node ./bin/remodex.js run &
+  REMODEX_RELAY="${RELAY_URL}" \
+  REMODEX_REFRESH_ENABLED="${REMODEX_REFRESH_ENABLED}" \
+  REMODEX_REFRESH_MODE="${REMODEX_REFRESH_MODE}" \
+  node ./bin/remodex.js run &
   BRIDGE_PID=$!
 }
 
