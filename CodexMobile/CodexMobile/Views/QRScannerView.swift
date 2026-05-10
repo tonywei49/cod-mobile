@@ -142,11 +142,11 @@ struct QRScannerView: View {
                 .padding(.top, 2)
 
             VStack(alignment: .leading, spacing: 8) {
-                Text(title)
+                AppLocalizedText.text(title)
                     .font(AppFont.subheadline(weight: .semibold))
                     .foregroundStyle(.white)
 
-                Text(detail)
+                AppLocalizedText.text(detail)
                     .font(showsCopyButton ? AppFont.mono(.caption) : AppFont.caption())
                     .foregroundStyle(.white.opacity(0.82))
                     .textSelection(.enabled)
@@ -158,7 +158,7 @@ struct QRScannerView: View {
                     )
 
                 if showsCopyButton {
-                    Button(didCopyBridgeUpdateCommand ? "Copied" : "Copy Command") {
+                    Button {
                         UIPasteboard.general.string = detail
                         HapticFeedback.shared.triggerImpactFeedback(style: .light)
                         withAnimation(.easeInOut(duration: 0.2)) {
@@ -169,6 +169,8 @@ struct QRScannerView: View {
                                 didCopyBridgeUpdateCommand = false
                             }
                         }
+                    } label: {
+                        AppLocalizedText.text(didCopyBridgeUpdateCommand ? "Copied" : "Copy Command")
                     }
                     .font(AppFont.caption(weight: .semibold))
                     .foregroundStyle(.white)

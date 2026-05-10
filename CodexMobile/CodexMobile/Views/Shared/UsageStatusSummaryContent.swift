@@ -150,7 +150,7 @@ struct UsageStatusSummaryContent: View {
                         .font(AppFont.system(size: 12, weight: .semibold))
                 }
 
-                Text(refreshControl.isRefreshing ? "Refreshing..." : refreshControl.title)
+                AppLocalizedText.text(refreshControl.isRefreshing ? "Refreshing..." : refreshControl.title)
                     .font(AppFont.subheadline(weight: .semibold))
             }
             .frame(maxWidth: .infinity, alignment: .trailing)

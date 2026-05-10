@@ -15,6 +15,7 @@ struct CodexMobileApp: App {
     @State private var petCompanionStore: PetCompanionStore
     @State private var petCompanionStatusStore: PetCompanionStatusStore
     @State private var subscriptionService: SubscriptionService
+    @AppStorage(AppLanguage.storageKey) private var appLanguageRawValue = AppLanguage.defaultStoredRawValue
 
     init() {
         Self.configureRevenueCatIfAvailable()
@@ -33,6 +34,7 @@ struct CodexMobileApp: App {
                 .environment(petCompanionStore)
                 .environment(petCompanionStatusStore)
                 .environment(subscriptionService)
+                .environment(\.locale, appLanguage.locale)
                 .task {
                     await subscriptionService.bootstrap()
                 }
@@ -70,5 +72,9 @@ struct CodexMobileApp: App {
         #endif
 
         Purchases.configure(withAPIKey: apiKey)
+    }
+
+    private var appLanguage: AppLanguage {
+        AppLanguage(rawValue: appLanguageRawValue) ?? .system
     }
 }

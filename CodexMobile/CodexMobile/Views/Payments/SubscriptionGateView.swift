@@ -130,11 +130,11 @@ struct SubscriptionGateView: View {
                                 )
 
                             VStack(alignment: .leading, spacing: 4) {
-                                Text(feature.title)
+                                AppLocalizedText.text(feature.title)
                                     .font(AppFont.subheadline(weight: .semibold))
                                     .foregroundStyle(primaryTextColor)
 
-                                Text(feature.subtitle)
+                                AppLocalizedText.text(feature.subtitle)
                                     .font(AppFont.caption())
                                     .foregroundStyle(secondaryTextColor)
                                     .lineLimit(3)
@@ -311,10 +311,12 @@ struct SubscriptionGateView: View {
             .buttonStyle(.plain)
 
             HStack(spacing: 0) {
-                Button(isRestoring ? "Restoring..." : "Restore Purchase") {
+                Button {
                     Task {
                         await subscriptions.restorePurchases()
                     }
+                } label: {
+                    AppLocalizedText.text(isRestoring ? "Restoring..." : "Restore Purchase")
                 }
                 .disabled(isPurchasing || isRestoring)
 

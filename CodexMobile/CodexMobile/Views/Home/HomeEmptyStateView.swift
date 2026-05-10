@@ -44,7 +44,7 @@ struct HomeEmptyStateView<AuthSection: View, Footer: View>: View {
                             value: dotPulse
                         )
 
-                    Text(statusLabel)
+                    AppLocalizedText.text(statusLabel)
                         .font(AppFont.caption(weight: .medium))
                         .foregroundStyle(.secondary)
                 }
@@ -83,7 +83,7 @@ struct HomeEmptyStateView<AuthSection: View, Footer: View>: View {
                                 .scaleEffect(0.9)
                         }
 
-                        Text(primaryButtonTitle)
+                        AppLocalizedText.text(primaryButtonTitle)
                             .font(AppFont.body(weight: .semibold))
                     }
                     .frame(maxWidth: .infinity)

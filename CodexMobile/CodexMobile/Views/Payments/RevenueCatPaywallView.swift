@@ -188,7 +188,7 @@ struct RevenueCatPaywallView: View {
                         .foregroundStyle(accent)
                         .frame(width: 28, height: 28)
                     
-                    Text(feature.title)
+                    AppLocalizedText.text(feature.title)
                         .font(AppFont.subheadline())
                     
                     Spacer(minLength: 0)
@@ -243,10 +243,12 @@ struct RevenueCatPaywallView: View {
                     .foregroundStyle(.secondary)
 
                 HStack(spacing: 0) {
-                    Button(subscriptions.isRestoring ? "Restoring..." : "Restore Purchase") {
+                    Button {
                         Task {
                             await subscriptions.restorePurchases()
                         }
+                    } label: {
+                        AppLocalizedText.text(subscriptions.isRestoring ? "Restoring..." : "Restore Purchase")
                     }
                     .disabled(subscriptions.isPurchasing || subscriptions.isRestoring)
 

@@ -68,7 +68,7 @@ struct OnboardingView: View {
                 advanceToNextPage()
             }
         } message: {
-            Text("Copy and paste \"\(codexInstallCommand)\" on your computer before moving on. Remodex will not work until Codex CLI is installed and available in your PATH.")
+            Text("Copy and paste the Codex install command on your computer before moving on. Remodex will not work until Codex CLI is installed and available in your PATH.")
         }
     }
 
@@ -137,7 +137,7 @@ struct OnboardingView: View {
                 Image(systemName: systemImage)
                     .font(.system(size: 15, weight: .semibold))
 
-                Text(title)
+                AppLocalizedText.text(title)
                     .font(AppFont.body(weight: .semibold))
             }
             .foregroundStyle(.white)

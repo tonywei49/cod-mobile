@@ -9,11 +9,13 @@ import UIKit
 
 struct SettingsView: View {
     @AppStorage("codex.appFontStyle") private var appFontStyleRawValue = AppFont.defaultStoredStyleRawValue
+    @AppStorage(AppLanguage.storageKey) private var appLanguageRawValue = AppLanguage.defaultStoredRawValue
 
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
                 SettingsArchivedChatsCard()
+                SettingsLanguageCard(appLanguage: appLanguageBinding)
                 SettingsAppearanceCard(appFontStyle: appFontStyleBinding)
                 SettingsNotificationsCard()
                 SettingsGPTAccountCard()
@@ -35,6 +37,40 @@ struct SettingsView: View {
             get: { AppFont.Style(rawValue: appFontStyleRawValue) ?? AppFont.defaultStyle },
             set: { appFontStyleRawValue = $0.rawValue }
         )
+    }
+
+    private var appLanguageBinding: Binding<AppLanguage> {
+        Binding(
+            get: { AppLanguage(rawValue: appLanguageRawValue) ?? .system },
+            set: { appLanguageRawValue = $0.rawValue }
+        )
+    }
+}
+
+private struct SettingsLanguageCard: View {
+    @Binding var appLanguage: AppLanguage
+
+    private let settingsAccentColor = Color(.plan)
+
+    var body: some View {
+        SettingsCard(title: "Language") {
+            HStack {
+                Text("Interface language")
+                Spacer()
+                Picker("Interface language", selection: $appLanguage) {
+                    ForEach(AppLanguage.allCases) { language in
+                        Text(language.titleKey).tag(language)
+                    }
+                }
+                .pickerStyle(.menu)
+                .labelsHidden()
+                .tint(settingsAccentColor)
+            }
+
+            Text("Changes apply to the app interface. Codex replies, terminal output, and repository content keep their original language.")
+                .font(AppFont.caption())
+                .foregroundStyle(.secondary)
+        }
     }
 }
 
@@ -350,7 +386,7 @@ private struct SettingsSubscriptionCard: View {
             HStack {
                 Text("Status")
                 Spacer()
-                Text(subscriptions.hasProAccess ? "Active" : "Free")
+                AppLocalizedText.text(subscriptions.hasProAccess ? "Active" : "Free")
                     .foregroundStyle(subscriptions.hasProAccess ? .green : .secondary)
             }
 
@@ -415,9 +451,10 @@ struct SettingsCard<Content: View>: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text(title.uppercased())
+            AppLocalizedText.text(title)
                 .font(AppFont.caption(weight: .semibold))
                 .foregroundStyle(.secondary)
+                .textCase(.uppercase)
                 .padding(.horizontal, 4)
                 .padding(.bottom, 8)
             VStack(alignment: .leading, spacing: 12) {
@@ -450,7 +487,7 @@ struct SettingsButton: View {
                 if isLoading {
                     ProgressView()
                 } else {
-                    Text(title)
+                    AppLocalizedText.text(title)
                 }
             }
             .font(AppFont.subheadline(weight: .medium))
@@ -719,7 +756,7 @@ private struct SettingsNotificationsCard: View {
                     .foregroundStyle(.primary)
                 Text("Status")
                 Spacer()
-                Text(statusLabel)
+                AppLocalizedText.text(statusLabel)
                     .foregroundStyle(.secondary)
             }
 
@@ -830,7 +867,7 @@ private struct SettingsBridgeVersionCard: View {
             )
 
             if let guidance = guidanceText {
-                Text(guidance)
+                AppLocalizedText.text(guidance)
                     .font(AppFont.caption())
                     .foregroundStyle(guidanceColor)
             }
@@ -935,7 +972,7 @@ private struct SettingsBridgeVersionCard: View {
         HStack(spacing: 12) {
             Text(title)
             Spacer()
-            Text(value)
+            AppLocalizedText.text(value)
                 .font(AppFont.mono(.subheadline))
                 .foregroundStyle(valueStyle)
                 .lineLimit(1)
@@ -1057,7 +1094,7 @@ private struct SettingsAboutCard: View {
     ) -> some View {
         HStack(spacing: 8) {
             leading()
-            Text(title)
+            AppLocalizedText.text(title)
                 .font(AppFont.subheadline(weight: .medium))
             Spacer()
             Image(systemName: "chevron.right")
@@ -1158,7 +1195,7 @@ private struct SettingsTrustedComputerCard: View {
     @ViewBuilder
     private func labeledRow(_ label: String, value: String) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 8) {
-            Text(label)
+            AppLocalizedText.text(label)
                 .font(AppFont.caption(weight: .semibold))
                 .foregroundStyle(.secondary)
                 .frame(width: 48, alignment: .leading)
@@ -1176,7 +1213,7 @@ private struct SettingsStatusPill: View {
     let label: String
 
     var body: some View {
-        Text(label)
+        AppLocalizedText.text(label)
             .font(AppFont.caption(weight: .semibold))
             .foregroundStyle(.secondary)
             .padding(.horizontal, 10)

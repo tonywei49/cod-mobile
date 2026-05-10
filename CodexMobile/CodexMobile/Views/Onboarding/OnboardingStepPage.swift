@@ -71,10 +71,10 @@ struct OnboardingStepPage: View {
                             .foregroundStyle(Color(.plan).opacity(0.7))
                             .kerning(1.5)
 
-                        Text(title)
+                        AppLocalizedText.text(title)
                             .font(AppFont.system(size: 28, weight: .bold))
 
-                        Text(description)
+                        AppLocalizedText.text(description)
                             .font(AppFont.subheadline(weight: .regular))
                             .foregroundStyle(.white.opacity(0.45))
                             .multilineTextAlignment(.center)
@@ -87,7 +87,7 @@ struct OnboardingStepPage: View {
                             OnboardingCommandCard(command: command)
 
                             if let commandCaption, !commandCaption.isEmpty {
-                                Text(commandCaption)
+                                AppLocalizedText.text(commandCaption)
                                     .font(AppFont.caption())
                                     .foregroundStyle(.white.opacity(0.45))
                                     .fixedSize(horizontal: false, vertical: true)
