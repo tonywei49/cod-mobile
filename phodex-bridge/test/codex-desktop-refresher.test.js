@@ -50,6 +50,7 @@ test("readBridgeConfig keeps safe defaults and explicit overrides", () => {
     },
     platform: "darwin",
     runtimeRoot: "/tmp/remodex-package",
+    useSavedDaemonConfig: true,
     fsImpl: {
       existsSync(targetPath) {
         return targetPath === "/tmp/remodex-state/daemon-config.json";
@@ -103,6 +104,7 @@ test("readBridgeConfig keeps safe defaults and explicit overrides", () => {
     },
     platform: "darwin",
     runtimeRoot: "/tmp/remodex-package",
+    useSavedDaemonConfig: true,
     fsImpl: {
       existsSync: () => false,
       readFileSync: () => {
@@ -158,6 +160,41 @@ test("readBridgeConfig accepts the conservative desktop refresh mode", () => {
 
   assert.equal(config.refreshEnabled, true);
   assert.equal(config.refreshMode, "completion");
+});
+
+test("readBridgeConfig preserves saved daemon settings when restart has no env overrides", () => {
+  const stateDir = "/tmp/remodex-state";
+  const config = readBridgeConfig({
+    env: {
+      REMODEX_DEVICE_STATE_DIR: stateDir,
+    },
+    useSavedDaemonConfig: true,
+    platform: "darwin",
+    runtimeRoot: "/tmp/remodex-package",
+    fsImpl: {
+      existsSync(targetPath) {
+        return targetPath === `${stateDir}/daemon-config.json`;
+      },
+      readFileSync(targetPath) {
+        if (targetPath === `${stateDir}/daemon-config.json`) {
+          return JSON.stringify({
+            relayUrl: "wss://owner-relay.example.com/relay",
+            pushServiceUrl: "",
+            refreshEnabled: true,
+            refreshMode: "completion",
+            keepMacAwakeEnabled: false,
+          });
+        }
+        throw new Error("unexpected read");
+      },
+    },
+  });
+
+  assert.equal(config.relayUrl, "wss://owner-relay.example.com/relay");
+  assert.equal(config.pushServiceUrl, "");
+  assert.equal(config.refreshEnabled, true);
+  assert.equal(config.refreshMode, "completion");
+  assert.equal(config.keepMacAwakeEnabled, false);
 });
 
 test("readBridgeConfig uses only the packaged relay default outside a source checkout", () => {

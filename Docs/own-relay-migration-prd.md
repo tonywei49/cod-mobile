@@ -248,6 +248,50 @@ cloudflared tunnel --url http://127.0.0.1:9000
 
 ## 实施阶段
 
+### 当前 Phase 1 实测状态模板
+
+完成本阶段时，私有验收记录应该确认下面这些状态。真实域名、服务器 IP 和账号不要写进公开仓库：
+
+- 自有 relay URL：`wss://your-relay.example.com/relay`
+- relay 进程：服务器 `remodex-relay.service`
+- relay 状态：`active` / `enabled`
+- relay health：`GET https://your-relay.example.com/health` 返回 `{"ok":true}`
+- WebSocket：`wss://your-relay.example.com/relay/{sessionId}` 可以正常 upgrade
+- Mac bridge：macOS `launchd` 服务 `com.remodex.bridge`
+- Mac bridge 状态：`installed=true`、`launchdLoaded=true`、`connectionStatus=connected`
+- Mac bridge relay URL：指向自己的 relay URL
+- 桌面刷新模式：`REMODEX_REFRESH_ENABLED=true`、`REMODEX_REFRESH_MODE=completion`
+- 手机端消息：已确认能写入 `~/.codex/sessions` 对应 JSONL rollout 文件
+- trusted reconnect：已确认 Mac bridge 重启后，iPhone 不重新扫码也能通过 `trusted_reconnect` 重新连上
+
+已确认的限制：
+
+- Codex.app GUI 不是实时 mirror。手机端消息能进 session 文件，也能通过本线程响应，但桌面图形界面不保证立刻显示。
+- 这个限制不是 relay 问题。第一阶段不强改 Codex.app GUI 实时同步，后续要把它作为独立产品功能点评估。
+
+后台服务重启命令：
+
+```bash
+cd phodex-bridge
+node ./bin/remodex.js restart --json
+```
+
+`restart` 会沿用已经保存到 `~/.remodex/daemon-config.json` 的 relay 和 refresh 配置。第一次启用后台服务时仍然要显式设置 `REMODEX_RELAY`。
+
+验收命令：
+
+```bash
+cd phodex-bridge
+node ./bin/remodex.js status --json
+```
+
+服务器验收命令：
+
+```bash
+ssh <server-user>@<server-host> \
+  'systemctl is-active remodex-relay && systemctl is-enabled remodex-relay && curl --silent --fail http://127.0.0.1:9000/health'
+```
+
 ### Phase 0：前置检查
 
 - 确认 relay host 有 Node.js 18+。

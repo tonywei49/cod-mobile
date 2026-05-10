@@ -2,6 +2,8 @@
 
 这个文件记录当前测试阶段怎么恢复手机端 offline。
 
+正式后台 bridge 由 macOS `launchd` 管理，不依赖这个脚本常驻。这个脚本主要用于本地调试、临时恢复和快速检查。
+
 ## 什么时候用
 
 手机显示 offline，或者点 reconnect 没反应时，在 Mac 上运行：
@@ -21,7 +23,7 @@ cd /Users/mac/Documents/github资源/remodex
 
 ## 固定自己的本地 relay
 
-当前测试阶段可以把 Mac 的局域网 IP 写进本地私有 env：
+当前测试阶段可以把私有 relay 写进本地私有 env：
 
 ```sh
 cat .env.remodex.local
@@ -30,7 +32,8 @@ cat .env.remodex.local
 示例：
 
 ```sh
-RELAY_HOSTNAME=10.251.1.83
+REMODEX_RELAY=wss://your-relay.example.com/relay
+RELAY_HOSTNAME=your-relay.example.com
 RELAY_PORT=9000
 REMODEX_REFRESH_ENABLED=true
 REMODEX_REFRESH_MODE=completion
@@ -57,6 +60,22 @@ REMODEX_REFRESH_MODE=completion
 ```sh
 ./start-remodex-dev.sh --status
 ```
+
+正式后台服务状态用：
+
+```sh
+cd phodex-bridge
+node ./bin/remodex.js status --json
+```
+
+正式后台服务重启：
+
+```sh
+cd phodex-bridge
+node ./bin/remodex.js restart --json
+```
+
+`restart` 会沿用已经保存到 `~/.remodex/daemon-config.json` 的 relay 和 refresh 配置。第一次启用后台服务时仍然要显式设置 `REMODEX_RELAY`。
 
 ## 注意
 

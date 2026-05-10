@@ -537,8 +537,11 @@ function readBridgeConfig({
   platform = process.platform,
   runtimeRoot = path.resolve(__dirname, ".."),
   fsImpl = fs,
+  useSavedDaemonConfig = false,
 } = {}) {
-  const daemonConfig = readDaemonConfig({ env, fsImpl }) || {};
+  const daemonConfig = useSavedDaemonConfig
+    ? (readDaemonConfig({ env, fsImpl }) || {})
+    : {};
   const privateDefaults = readPrivatePackageDefaults({ runtimeRoot, fsImpl });
   const sourceCheckout = isSourceCheckout(runtimeRoot, fsImpl);
   const defaultRelayUrl = sourceCheckout
@@ -549,14 +552,16 @@ function readBridgeConfig({
     "",
     env
   );
+  const persistedRelayUrl = readString(daemonConfig.relayUrl) || "";
   const relayUrl = readFirstDefinedEnv(
     ["REMODEX_RELAY", "PHODEX_RELAY"],
-    defaultRelayUrl,
+    defaultRelayUrl || persistedRelayUrl,
     env
   );
   const defaultPushServiceUrl = sourceCheckout || explicitRelayUrl
     ? ""
     : privateDefaults.pushServiceUrl;
+  const persistedPushServiceUrl = readString(daemonConfig.pushServiceUrl) || "";
   const codexEndpoint = readFirstDefinedEnv(
     ["REMODEX_CODEX_ENDPOINT", "PHODEX_CODEX_ENDPOINT"],
     "",
@@ -568,9 +573,12 @@ function readBridgeConfig({
     env
   );
   const explicitRefreshEnabled = readOptionalBooleanEnv(["REMODEX_REFRESH_ENABLED"], env);
+  const persistedRefreshEnabled = typeof daemonConfig.refreshEnabled === "boolean"
+    ? daemonConfig.refreshEnabled
+    : null;
   const refreshMode = normalizeRefreshMode(readFirstDefinedEnv(
     ["REMODEX_REFRESH_MODE"],
-    DEFAULT_REFRESH_MODE,
+    normalizeRefreshMode(readString(daemonConfig.refreshMode)) || DEFAULT_REFRESH_MODE,
     env
   ));
   const explicitKeepMacAwakeEnabled = readOptionalBooleanEnv(["REMODEX_KEEP_MAC_AWAKE"], env);
@@ -583,7 +591,7 @@ function readBridgeConfig({
     relayUrl,
     pushServiceUrl: readFirstDefinedEnv(
       ["REMODEX_PUSH_SERVICE_URL"],
-      defaultPushServiceUrl,
+      defaultPushServiceUrl || persistedPushServiceUrl,
       env
     ),
     pushPreviewMaxChars: parseIntegerEnv(
@@ -591,7 +599,7 @@ function readBridgeConfig({
       160
     ),
     refreshEnabled: explicitRefreshEnabled == null
-      ? defaultRefreshEnabled
+      ? (persistedRefreshEnabled == null ? defaultRefreshEnabled : persistedRefreshEnabled)
       : explicitRefreshEnabled,
     refreshMode,
     refreshDebounceMs: parseIntegerEnv(

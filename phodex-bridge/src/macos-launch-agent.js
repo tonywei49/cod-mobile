@@ -79,7 +79,7 @@ async function startMacOSBridgeService({
   pairingPollIntervalMs = DEFAULT_PAIRING_WAIT_INTERVAL_MS,
 } = {}) {
   assertDarwinPlatform(platform);
-  const config = readBridgeConfig({ env });
+  const config = readBridgeConfig({ env, useSavedDaemonConfig: true });
   assertRelayConfigured(config);
   const startedAt = Date.now();
 
