@@ -621,6 +621,7 @@ extension CodexService {
         runningThreadCatchupTaskByThreadID.removeValue(forKey: threadId)
         forcedRunningCatchupEscalationThreadIDs.remove(threadId)
         lastForcedRunningResumeAtByThread.removeValue(forKey: threadId)
+        lastForegroundClosedActiveThreadRefreshAtByThread.removeValue(forKey: threadId)
         canonicalHistoryReconcileRetryTaskByThreadID[threadId]?.cancel()
         canonicalHistoryReconcileRetryTaskByThreadID.removeValue(forKey: threadId)
     }
@@ -637,6 +638,7 @@ extension CodexService {
             .union(forcedRunningCatchupEscalationThreadIDs)
             .union(threadResumeRequestSignatureByThreadID.keys)
             .union(lastForcedRunningResumeAtByThread.keys)
+            .union(lastForegroundClosedActiveThreadRefreshAtByThread.keys)
             .union(canonicalHistoryReconcileRetryTaskByThreadID.keys)
         invalidatedThreadIDs.forEach { invalidatePerThreadRefreshGeneration(for: $0) }
         loadingThreadIDs.removeAll()
@@ -654,6 +656,7 @@ extension CodexService {
         runningThreadCatchupTaskByThreadID.removeAll()
         forcedRunningCatchupEscalationThreadIDs.removeAll()
         lastForcedRunningResumeAtByThread.removeAll()
+        lastForegroundClosedActiveThreadRefreshAtByThread.removeAll()
         workspaceCheckpointCopyTaskByTurnID.values.forEach { $0.cancel() }
         workspaceCheckpointCopyTaskByTurnID.removeAll()
         canonicalHistoryReconcileRetryTaskByThreadID.values.forEach { $0.cancel() }
@@ -827,6 +830,30 @@ extension CodexService {
         mirroredRunningCatchupThreadIDs.contains(threadId) && threadHasActiveOrRunningTurn(threadId)
     }
 
+    // Allows a low-frequency foreground poll for the visible closed chat. This is
+    // the only way to notice desktop-authored messages after local hydration has
+    // made the normal sync path return early.
+    func takeForegroundClosedActiveThreadRefreshPermit(
+        for threadId: String,
+        minInterval: TimeInterval = 10.0,
+        now: Date = Date()
+    ) -> Bool {
+        guard isAppInForeground,
+              isConnected,
+              isInitialized,
+              activeThreadId == threadId else {
+            return false
+        }
+
+        if let lastRefreshAt = lastForegroundClosedActiveThreadRefreshAtByThread[threadId],
+           now.timeIntervalSince(lastRefreshAt) < minInterval {
+            return false
+        }
+
+        lastForegroundClosedActiveThreadRefreshAtByThread[threadId] = now
+        return true
+    }
+
     // Grants one bounded catch-up slot so mirrored desktop runs can refresh via
     // thread/resume without hammering the server every loop tick.
     func takeMirroredRunningCatchupPermit(
@@ -859,7 +886,10 @@ extension CodexService {
            hydratedThreadIDs.contains(threadId),
            hasSatisfiedInitialThreadHistoryLoad(threadId: threadId),
            !threadsNeedingCanonicalHistoryReconcile.contains(threadId) {
-            return
+            guard !shouldPreferDeferredClosedHydration,
+                  takeForegroundClosedActiveThreadRefreshPermit(for: threadId) else {
+                return
+            }
         }
 
         // Long closed chats already have usable local rows. Avoid forcing a full thread/read

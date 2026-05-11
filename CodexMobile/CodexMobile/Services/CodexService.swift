@@ -531,6 +531,9 @@ final class CodexService {
     @ObservationIgnored var threadRefreshGenerationByThreadID: [String: UInt64] = [:]
     // Throttles expensive forced resumes while the user bounces between running chats.
     @ObservationIgnored var lastForcedRunningResumeAtByThread: [String: Date] = [:]
+    // Throttles foreground refreshes for already-loaded closed chats so desktop-authored
+    // messages can surface without requiring the iPhone app to restart.
+    @ObservationIgnored var lastForegroundClosedActiveThreadRefreshAtByThread: [String: Date] = [:]
     // Marks threads that used a lightweight running catch-up and still need one canonical history pass later.
     @ObservationIgnored var threadsNeedingCanonicalHistoryReconcile: Set<String> = []
     // Remembers which large closed chats already completed the one required canonical refresh after local-first paint.

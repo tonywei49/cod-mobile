@@ -298,6 +298,45 @@ final class CodexServiceCatchupRecoveryTests: XCTestCase {
         XCTAssertLessThanOrEqual(canonicalHistoryReadCount, 1)
     }
 
+    func testForegroundSyncRefreshesHydratedClosedActiveThread() async {
+        let service = makeService()
+        let threadID = "thread-desktop-update"
+
+        service.isConnected = true
+        service.isInitialized = true
+        service.isAppInForeground = true
+        service.supportsTurnPagination = false
+        service.activeThreadId = threadID
+        service.upsertThread(CodexThread(id: threadID, title: "Desktop Update"))
+        service.hydratedThreadIDs.insert(threadID)
+        service.initialTurnsLoadedByThreadID.insert(threadID)
+        service.messagesByThread[threadID] = [
+            CodexMessage(threadId: threadID, role: .user, text: "phone message"),
+        ]
+
+        var threadReadCount = 0
+        service.requestTransportOverride = { method, _ in
+            if method == "thread/read" {
+                threadReadCount += 1
+            }
+            return RPCMessage(
+                id: .string(UUID().uuidString),
+                result: .object([
+                    "thread": .object([
+                        "id": .string(threadID),
+                        "title": .string("Desktop Update"),
+                        "turns": .array([]),
+                    ]),
+                ]),
+                includeJSONRPC: false
+            )
+        }
+
+        await service.syncActiveThreadState(threadId: threadID)
+
+        XCTAssertEqual(threadReadCount, 1)
+    }
+
     private func makeService() -> CodexService {
         let suiteName = "CodexServiceCatchupRecoveryTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName) ?? .standard
