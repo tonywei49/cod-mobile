@@ -22,6 +22,7 @@ struct SettingsView: View {
                 SettingsSubscriptionCard()
                 SettingsBridgeVersionCard()
                 SettingsRuntimeDefaultsCard()
+                SettingsExtensionsCard()
                 SettingsAboutCard()
                 SettingsUsageCard()
                 SettingsConnectionCard()
@@ -566,6 +567,342 @@ private struct SettingsUsageCard: View {
     // Settings only needs the account-wide usage windows.
     private func refreshStatusData() async {
         await codex.refreshUsageStatus(threadId: nil)
+    }
+}
+
+private struct SettingsExtensionsCard: View {
+    @Environment(CodexService.self) private var codex
+
+    @State private var snapshot = SettingsExtensionsSnapshot.empty
+    @State private var isLoading = false
+    @State private var errorMessage: String?
+
+    var body: some View {
+        SettingsCard(title: "Extensions") {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Read-only view of tools reported by the connected Codex runtime.")
+                    .font(AppFont.caption())
+                    .foregroundStyle(.secondary)
+
+                if isLoading {
+                    HStack(spacing: 8) {
+                        ProgressView()
+                            .controlSize(.small)
+                        AppLocalizedText.text("Loading extensions...")
+                            .font(AppFont.caption())
+                            .foregroundStyle(.secondary)
+                    }
+                } else if let errorMessage {
+                    Text(errorMessage)
+                        .font(AppFont.caption())
+                        .foregroundStyle(.secondary)
+                } else if !codex.isConnected {
+                    AppLocalizedText.text("Connect to a computer bridge to list extensions.")
+                        .font(AppFont.caption())
+                        .foregroundStyle(.secondary)
+                } else {
+                    summaryGrid
+
+                    if snapshot.isEmpty {
+                        AppLocalizedText.text("No active extensions were reported.")
+                            .font(AppFont.caption())
+                            .foregroundStyle(.secondary)
+                    } else {
+                        if !snapshot.marketplaces.isEmpty {
+                            extensionSection(title: "Marketplaces", items: snapshot.marketplaces)
+                        }
+                        if !snapshot.plugins.isEmpty {
+                            extensionSection(title: "Plugins", items: snapshot.plugins)
+                        }
+                        if !snapshot.apps.isEmpty {
+                            extensionSection(title: "Apps", items: snapshot.apps)
+                        }
+                        if !snapshot.mcps.isEmpty {
+                            extensionSection(title: "MCP", items: snapshot.mcps)
+                        }
+                        if !snapshot.skills.isEmpty {
+                            extensionSection(title: "Skills", items: snapshot.skills)
+                        }
+                    }
+                }
+            }
+        }
+        .task {
+            await refresh()
+        }
+        .onChange(of: codex.isConnected) { _, _ in
+            Task { await refresh() }
+        }
+    }
+
+    private var summaryGrid: some View {
+        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
+            summaryCell(title: "Plugins", value: snapshot.plugins.count)
+            summaryCell(title: "Apps", value: snapshot.apps.count)
+            summaryCell(title: "MCP", value: snapshot.mcps.count)
+            summaryCell(title: "Skills", value: snapshot.skills.count)
+            summaryCell(title: "Marketplaces", value: snapshot.marketplaces.count)
+        }
+    }
+
+    private func summaryCell(title: String, value: Int) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            AppLocalizedText.text(title)
+                .font(AppFont.caption2(weight: .semibold))
+                .foregroundStyle(.secondary)
+            Text("\(value)")
+                .font(AppFont.title3(weight: .semibold))
+                .foregroundStyle(.primary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(10)
+        .background(Color(.secondarySystemFill).opacity(0.55), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+    }
+
+    private func extensionSection(title: String, items: [SettingsExtensionDisplayItem]) -> some View {
+        let visibleItems = Array(items.prefix(8))
+
+        return VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                AppLocalizedText.text(title)
+                    .font(AppFont.caption(weight: .semibold))
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text("\(items.count)")
+                    .font(AppFont.caption(weight: .semibold))
+                    .foregroundStyle(.secondary)
+            }
+
+            VStack(spacing: 0) {
+                ForEach(visibleItems) { item in
+                    VStack(alignment: .leading, spacing: 3) {
+                        HStack(spacing: 8) {
+                            Text(item.title)
+                                .font(AppFont.subheadline(weight: .medium))
+                                .foregroundStyle(.primary)
+                                .lineLimit(1)
+                            Spacer(minLength: 8)
+                            if let badge = item.badge {
+                                Text(badge)
+                                    .font(AppFont.caption2(weight: .semibold))
+                                    .foregroundStyle(.secondary)
+                                    .padding(.horizontal, 7)
+                                    .padding(.vertical, 3)
+                                    .background(Color(.tertiarySystemFill), in: Capsule())
+                            }
+                        }
+                        if let detail = item.detail {
+                            Text(detail)
+                                .font(AppFont.caption())
+                                .foregroundStyle(.secondary)
+                                .lineLimit(2)
+                        }
+                    }
+                    .padding(.vertical, 8)
+
+                    if item.id != visibleItems.last?.id {
+                        Divider().opacity(0.35)
+                    }
+                }
+
+                if items.count > visibleItems.count {
+                    Text("+\(items.count - visibleItems.count)")
+                        .font(AppFont.caption(weight: .semibold))
+                        .foregroundStyle(.secondary)
+                        .padding(.top, 8)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+            .padding(.horizontal, 10)
+            .background(Color(.secondarySystemFill).opacity(0.35), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        }
+    }
+
+    private func refresh() async {
+        guard codex.isConnected else {
+            snapshot = .empty
+            errorMessage = nil
+            isLoading = false
+            return
+        }
+
+        isLoading = true
+        errorMessage = nil
+
+        async let skillsResult = loadSkills()
+        async let pluginsResult = loadPlugins()
+
+        let loadedSkills = await skillsResult
+        let loadedPlugins = await pluginsResult
+
+        switch (loadedSkills, loadedPlugins) {
+        case (.success(let skills), .success(let plugins)):
+            snapshot = SettingsExtensionsSnapshot(skills: skills, plugins: plugins)
+            errorMessage = nil
+        case (.failure(let error), .success(let plugins)):
+            snapshot = SettingsExtensionsSnapshot(skills: [], plugins: plugins)
+            errorMessage = error.localizedDescription
+        case (.success(let skills), .failure(let error)):
+            snapshot = SettingsExtensionsSnapshot(skills: skills, plugins: [])
+            errorMessage = error.localizedDescription
+        case (.failure(let skillError), .failure(let pluginError)):
+            snapshot = .empty
+            errorMessage = "\(skillError.localizedDescription)\n\(pluginError.localizedDescription)"
+        }
+
+        isLoading = false
+    }
+
+    private func loadSkills() async -> Result<[CodexSkillMetadata], Error> {
+        do {
+            return .success(try await codex.listSkills(cwds: nil))
+        } catch {
+            return .failure(error)
+        }
+    }
+
+    private func loadPlugins() async -> Result<[CodexPluginMetadata], Error> {
+        do {
+            return .success(try await codex.listPlugins(cwds: nil))
+        } catch {
+            return .failure(error)
+        }
+    }
+}
+
+private struct SettingsExtensionsSnapshot: Equatable {
+    let skills: [SettingsExtensionDisplayItem]
+    let plugins: [SettingsExtensionDisplayItem]
+    let apps: [SettingsExtensionDisplayItem]
+    let mcps: [SettingsExtensionDisplayItem]
+    let marketplaces: [SettingsExtensionDisplayItem]
+
+    var isEmpty: Bool {
+        skills.isEmpty && plugins.isEmpty && apps.isEmpty && mcps.isEmpty && marketplaces.isEmpty
+    }
+
+    static let empty = SettingsExtensionsSnapshot(
+        skills: [],
+        plugins: [],
+        apps: [],
+        mcps: [],
+        marketplaces: []
+    )
+
+    init(skills: [CodexSkillMetadata], plugins: [CodexPluginMetadata]) {
+        let activeSkills = skills
+            .filter(\.enabled)
+            .map(SettingsExtensionDisplayItem.init(skill:))
+            .sortedByTitle()
+        let activePlugins = plugins
+            .filter(\.isAvailableForMention)
+            .map(SettingsExtensionDisplayItem.init(plugin:))
+            .sortedByTitle()
+
+        self.skills = activeSkills
+        self.plugins = activePlugins
+        self.apps = activePlugins
+            .filter { $0.kind == .app }
+            .sortedByTitle()
+        self.mcps = activePlugins
+            .filter { $0.kind == .mcp }
+            .sortedByTitle()
+        self.marketplaces = Self.marketplaceItems(from: plugins)
+    }
+
+    private init(
+        skills: [SettingsExtensionDisplayItem],
+        plugins: [SettingsExtensionDisplayItem],
+        apps: [SettingsExtensionDisplayItem],
+        mcps: [SettingsExtensionDisplayItem],
+        marketplaces: [SettingsExtensionDisplayItem]
+    ) {
+        self.skills = skills
+        self.plugins = plugins
+        self.apps = apps
+        self.mcps = mcps
+        self.marketplaces = marketplaces
+    }
+
+    private static func marketplaceItems(from plugins: [CodexPluginMetadata]) -> [SettingsExtensionDisplayItem] {
+        let grouped = Dictionary(grouping: plugins.filter(\.isAvailableForMention), by: \.marketplaceName)
+        return grouped.map { marketplaceName, plugins in
+            SettingsExtensionDisplayItem(
+                id: "marketplace:\(marketplaceName)",
+                title: marketplaceName,
+                detail: plugins.first?.marketplacePath,
+                badge: "\(plugins.count)",
+                kind: .marketplace
+            )
+        }
+        .sortedByTitle()
+    }
+}
+
+private struct SettingsExtensionDisplayItem: Identifiable, Equatable {
+    enum Kind: Equatable {
+        case skill
+        case plugin
+        case app
+        case mcp
+        case marketplace
+    }
+
+    let id: String
+    let title: String
+    let detail: String?
+    let badge: String?
+    let kind: Kind
+
+    init(skill: CodexSkillMetadata) {
+        id = "skill:\(skill.id)"
+        title = SkillDisplayNameFormatter.displayName(for: skill.name)
+        detail = skill.description ?? skill.path
+        badge = skill.scope
+        kind = .skill
+    }
+
+    init(plugin: CodexPluginMetadata) {
+        id = "plugin:\(plugin.mentionPath)"
+        title = plugin.displayTitle
+        detail = plugin.shortDescription ?? plugin.mentionPath
+        badge = plugin.marketplaceName
+        kind = Self.kind(for: plugin)
+    }
+
+    init(id: String, title: String, detail: String?, badge: String?, kind: Kind) {
+        self.id = id
+        self.title = title
+        self.detail = detail
+        self.badge = badge
+        self.kind = kind
+    }
+
+    private static func kind(for plugin: CodexPluginMetadata) -> Kind {
+        let blob = [
+            plugin.name,
+            plugin.displayName ?? "",
+            plugin.shortDescription ?? "",
+            plugin.marketplaceName,
+            plugin.marketplacePath ?? "",
+            plugin.mentionPath,
+        ]
+            .joined(separator: " ")
+            .lowercased()
+
+        if blob.contains("mcp") {
+            return .mcp
+        }
+        if blob.contains("app") || blob.contains("connector") || blob.contains("openai-curated") || blob.contains("openai-bundled") {
+            return .app
+        }
+        return .plugin
+    }
+}
+
+private extension Array where Element == SettingsExtensionDisplayItem {
+    func sortedByTitle() -> [SettingsExtensionDisplayItem] {
+        sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
     }
 }
 

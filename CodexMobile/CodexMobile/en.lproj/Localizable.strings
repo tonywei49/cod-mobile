@@ -244,3 +244,13 @@
 "Use with Your Computer" = "Use with Your Computer";
 "We'll only show this once for each app version." = "We'll only show this once for each app version.";
 "What's New" = "What's New";
+"Apps" = "Apps";
+"Connect to a computer bridge to list extensions." = "Connect to a computer bridge to list extensions.";
+"Extensions" = "Extensions";
+"Loading extensions..." = "Loading extensions...";
+"Marketplaces" = "Marketplaces";
+"MCP" = "MCP";
+"No active extensions were reported." = "No active extensions were reported.";
+"Plugins" = "Plugins";
+"Read-only view of tools reported by the connected Codex runtime." = "Read-only view of tools reported by the connected Codex runtime.";
+"Skills" = "Skills";

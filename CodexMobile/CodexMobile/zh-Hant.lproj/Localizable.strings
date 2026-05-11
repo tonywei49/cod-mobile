@@ -244,3 +244,13 @@
 "Use with Your Computer" = "搭配你的電腦使用";
 "We'll only show this once for each app version." = "每個 App 版本只會顯示一次。";
 "What's New" = "最新內容";
+"Apps" = "應用";
+"Connect to a computer bridge to list extensions." = "連線到電腦 bridge 後才能列出擴充功能。";
+"Extensions" = "擴充功能";
+"Loading extensions..." = "正在載入擴充功能...";
+"Marketplaces" = "市場";
+"MCP" = "MCP";
+"No active extensions were reported." = "目前沒有回報已啟用的擴充項目。";
+"Plugins" = "插件";
+"Read-only view of tools reported by the connected Codex runtime." = "只讀顯示目前連線的 Codex runtime 回報的工具。";
+"Skills" = "技能";
