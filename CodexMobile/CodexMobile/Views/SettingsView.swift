@@ -573,61 +573,89 @@ private struct SettingsUsageCard: View {
 private struct SettingsExtensionsCard: View {
     @Environment(CodexService.self) private var codex
 
+    private var statusText: String {
+        codex.isConnected ? "Read-only" : "Offline"
+    }
+
+    var body: some View {
+        SettingsCard(title: "Extensions") {
+            NavigationLink {
+                SettingsExtensionsOverviewView()
+            } label: {
+                HStack {
+                    Label("Extensions", systemImage: "puzzlepiece.extension")
+                        .font(AppFont.subheadline(weight: .medium))
+                    Spacer()
+                    AppLocalizedText.text(statusText)
+                        .font(AppFont.caption(weight: .medium))
+                        .foregroundStyle(.secondary)
+                    Image(systemName: "chevron.right")
+                        .font(AppFont.caption(weight: .semibold))
+                        .foregroundStyle(.tertiary)
+                }
+            }
+            .buttonStyle(.plain)
+        }
+    }
+}
+
+private struct SettingsExtensionsOverviewView: View {
+    @Environment(CodexService.self) private var codex
+
     @State private var snapshot = SettingsExtensionsSnapshot.empty
     @State private var isLoading = false
     @State private var errorMessage: String?
 
     var body: some View {
-        SettingsCard(title: "Extensions") {
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Read-only view of tools reported by the connected Codex runtime.")
-                    .font(AppFont.caption())
-                    .foregroundStyle(.secondary)
-
-                if isLoading {
-                    HStack(spacing: 8) {
-                        ProgressView()
-                            .controlSize(.small)
-                        AppLocalizedText.text("Loading extensions...")
-                            .font(AppFont.caption())
-                            .foregroundStyle(.secondary)
-                    }
-                } else if let errorMessage {
-                    Text(errorMessage)
-                        .font(AppFont.caption())
+        Group {
+            if isLoading {
+                VStack(spacing: 12) {
+                    ProgressView()
+                    AppLocalizedText.text("Loading extensions...")
+                        .font(AppFont.subheadline())
                         .foregroundStyle(.secondary)
-                } else if !codex.isConnected {
-                    AppLocalizedText.text("Connect to a computer bridge to list extensions.")
-                        .font(AppFont.caption())
-                        .foregroundStyle(.secondary)
-                } else {
-                    summaryGrid
-
-                    if snapshot.isEmpty {
-                        AppLocalizedText.text("No active extensions were reported.")
-                            .font(AppFont.caption())
-                            .foregroundStyle(.secondary)
-                    } else {
-                        if !snapshot.marketplaces.isEmpty {
-                            extensionSection(title: "Marketplaces", items: snapshot.marketplaces)
-                        }
-                        if !snapshot.plugins.isEmpty {
-                            extensionSection(title: "Plugins", items: snapshot.plugins)
-                        }
-                        if !snapshot.apps.isEmpty {
-                            extensionSection(title: "Apps", items: snapshot.apps)
-                        }
-                        if !snapshot.mcps.isEmpty {
-                            extensionSection(title: "MCP", items: snapshot.mcps)
-                        }
-                        if !snapshot.skills.isEmpty {
-                            extensionSection(title: "Skills", items: snapshot.skills)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if !codex.isConnected {
+                emptyState(
+                    icon: "wifi.slash",
+                    title: "Offline",
+                    detail: "Connect to a computer bridge to list extensions."
+                )
+            } else if let errorMessage {
+                emptyState(
+                    icon: "exclamationmark.triangle",
+                    title: "Extensions",
+                    detail: errorMessage
+                )
+            } else if snapshot.isEmpty {
+                emptyState(
+                    icon: "puzzlepiece.extension",
+                    title: "Extensions",
+                    detail: "No active extensions were reported."
+                )
+            } else {
+                List {
+                    ForEach(SettingsExtensionCategory.allCases) { category in
+                        let items = snapshot.items(for: category)
+                        if !items.isEmpty {
+                            NavigationLink {
+                                SettingsExtensionCategoryDetailView(category: category, items: items)
+                            } label: {
+                                categoryRow(category: category, count: items.count)
+                            }
                         }
                     }
                 }
+                .listStyle(.insetGrouped)
             }
         }
+        .navigationTitle("Extensions")
+        .navigationBarTitleDisplayMode(.inline)
         .task {
+            await refresh()
+        }
+        .refreshable {
             await refresh()
         }
         .onChange(of: codex.isConnected) { _, _ in
@@ -635,87 +663,35 @@ private struct SettingsExtensionsCard: View {
         }
     }
 
-    private var summaryGrid: some View {
-        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
-            summaryCell(title: "Plugins", value: snapshot.plugins.count)
-            summaryCell(title: "Apps", value: snapshot.apps.count)
-            summaryCell(title: "MCP", value: snapshot.mcps.count)
-            summaryCell(title: "Skills", value: snapshot.skills.count)
-            summaryCell(title: "Marketplaces", value: snapshot.marketplaces.count)
-        }
-    }
-
-    private func summaryCell(title: String, value: Int) -> some View {
-        VStack(alignment: .leading, spacing: 3) {
-            AppLocalizedText.text(title)
-                .font(AppFont.caption2(weight: .semibold))
+    private func categoryRow(category: SettingsExtensionCategory, count: Int) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: category.systemImage)
+                .font(AppFont.subheadline(weight: .semibold))
                 .foregroundStyle(.secondary)
-            Text("\(value)")
-                .font(AppFont.title3(weight: .semibold))
-                .foregroundStyle(.primary)
+                .frame(width: 24)
+            AppLocalizedText.text(category.title)
+                .font(AppFont.body())
+            Spacer()
+            Text("\(count)")
+                .font(AppFont.caption(weight: .medium))
+                .foregroundStyle(.secondary)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(10)
-        .background(Color(.secondarySystemFill).opacity(0.55), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 
-    private func extensionSection(title: String, items: [SettingsExtensionDisplayItem]) -> some View {
-        let visibleItems = Array(items.prefix(8))
-
-        return VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                AppLocalizedText.text(title)
-                    .font(AppFont.caption(weight: .semibold))
-                    .foregroundStyle(.secondary)
-                Spacer()
-                Text("\(items.count)")
-                    .font(AppFont.caption(weight: .semibold))
-                    .foregroundStyle(.secondary)
-            }
-
-            VStack(spacing: 0) {
-                ForEach(visibleItems) { item in
-                    VStack(alignment: .leading, spacing: 3) {
-                        HStack(spacing: 8) {
-                            Text(item.title)
-                                .font(AppFont.subheadline(weight: .medium))
-                                .foregroundStyle(.primary)
-                                .lineLimit(1)
-                            Spacer(minLength: 8)
-                            if let badge = item.badge {
-                                Text(badge)
-                                    .font(AppFont.caption2(weight: .semibold))
-                                    .foregroundStyle(.secondary)
-                                    .padding(.horizontal, 7)
-                                    .padding(.vertical, 3)
-                                    .background(Color(.tertiarySystemFill), in: Capsule())
-                            }
-                        }
-                        if let detail = item.detail {
-                            Text(detail)
-                                .font(AppFont.caption())
-                                .foregroundStyle(.secondary)
-                                .lineLimit(2)
-                        }
-                    }
-                    .padding(.vertical, 8)
-
-                    if item.id != visibleItems.last?.id {
-                        Divider().opacity(0.35)
-                    }
-                }
-
-                if items.count > visibleItems.count {
-                    Text("+\(items.count - visibleItems.count)")
-                        .font(AppFont.caption(weight: .semibold))
-                        .foregroundStyle(.secondary)
-                        .padding(.top, 8)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-            }
-            .padding(.horizontal, 10)
-            .background(Color(.secondarySystemFill).opacity(0.35), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+    private func emptyState(icon: String, title: String, detail: String) -> some View {
+        VStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.system(size: 36))
+                .foregroundStyle(.tertiary)
+            AppLocalizedText.text(title)
+                .font(AppFont.subheadline(weight: .semibold))
+            Text(detail)
+                .font(AppFont.caption())
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
         }
+        .padding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private func refresh() async {
@@ -770,6 +746,74 @@ private struct SettingsExtensionsCard: View {
     }
 }
 
+private struct SettingsExtensionCategoryDetailView: View {
+    let category: SettingsExtensionCategory
+    let items: [SettingsExtensionDisplayItem]
+
+    var body: some View {
+        List {
+            ForEach(items) { item in
+                VStack(alignment: .leading, spacing: 5) {
+                    HStack(spacing: 8) {
+                        Text(item.title)
+                            .font(AppFont.body(weight: .medium))
+                            .lineLimit(1)
+                        Spacer(minLength: 8)
+                        if let badge = item.badge {
+                            Text(badge)
+                                .font(AppFont.caption2(weight: .semibold))
+                                .foregroundStyle(.secondary)
+                                .padding(.horizontal, 7)
+                                .padding(.vertical, 3)
+                                .background(Color(.tertiarySystemFill), in: Capsule())
+                        }
+                    }
+
+                    if let detail = item.detail {
+                        Text(detail)
+                            .font(AppFont.caption())
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .padding(.vertical, 4)
+            }
+        }
+        .listStyle(.insetGrouped)
+        .navigationTitle(category.title)
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+private enum SettingsExtensionCategory: CaseIterable, Identifiable {
+    case marketplaces
+    case plugins
+    case apps
+    case mcp
+    case skills
+
+    var id: String { title }
+
+    var title: String {
+        switch self {
+        case .marketplaces: return "Marketplaces"
+        case .plugins: return "Plugins"
+        case .apps: return "Apps"
+        case .mcp: return "MCP"
+        case .skills: return "Skills"
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .marketplaces: return "shippingbox"
+        case .plugins: return "puzzlepiece.extension"
+        case .apps: return "app.connected.to.app.below.fill"
+        case .mcp: return "point.3.connected.trianglepath.dotted"
+        case .skills: return "wand.and.stars"
+        }
+    }
+}
+
 private struct SettingsExtensionsSnapshot: Equatable {
     let skills: [SettingsExtensionDisplayItem]
     let plugins: [SettingsExtensionDisplayItem]
@@ -779,6 +823,16 @@ private struct SettingsExtensionsSnapshot: Equatable {
 
     var isEmpty: Bool {
         skills.isEmpty && plugins.isEmpty && apps.isEmpty && mcps.isEmpty && marketplaces.isEmpty
+    }
+
+    func items(for category: SettingsExtensionCategory) -> [SettingsExtensionDisplayItem] {
+        switch category {
+        case .marketplaces: return marketplaces
+        case .plugins: return plugins
+        case .apps: return apps
+        case .mcp: return mcps
+        case .skills: return skills
+        }
     }
 
     static let empty = SettingsExtensionsSnapshot(
