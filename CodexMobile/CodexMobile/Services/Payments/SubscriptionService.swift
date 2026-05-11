@@ -111,16 +111,14 @@ final class SubscriptionService {
     }
 
     var hasAppAccess: Bool {
-        #if DEBUG
-        return true
-        #else
-        hasProAccess || hasFreeSendAccess
-        #endif
+        AppEnvironment.isPrivateTestFlightBuild || hasProAccess || hasFreeSendAccess
     }
 
     // Counts a valid send attempt for free users even if the turn later fails.
     func consumeFreeSendAttemptIfNeeded() {
-        guard !hasProAccess, freeSendCount < Self.freeSendLimit else {
+        guard !AppEnvironment.isPrivateTestFlightBuild,
+              !hasProAccess,
+              freeSendCount < Self.freeSendLimit else {
             return
         }
 
@@ -143,6 +141,12 @@ final class SubscriptionService {
         }
         isLoading = true
         lastErrorMessage = nil
+
+        if AppEnvironment.isPrivateTestFlightBuild {
+            bootstrapState = .ready
+            isLoading = false
+            return
+        }
 
         guard Purchases.isConfigured else {
             if !hadOptimisticAccess {

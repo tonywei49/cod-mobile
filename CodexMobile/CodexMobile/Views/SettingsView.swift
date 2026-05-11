@@ -387,11 +387,15 @@ private struct SettingsSubscriptionCard: View {
             HStack {
                 Text("Status")
                 Spacer()
-                AppLocalizedText.text(subscriptions.hasProAccess ? "Active" : "Free")
-                    .foregroundStyle(subscriptions.hasProAccess ? .green : .secondary)
+                AppLocalizedText.text(subscriptionStatusText)
+                    .foregroundStyle(subscriptionStatusColor)
             }
 
-            if subscriptions.hasProAccess {
+            if AppEnvironment.isPrivateTestFlightBuild {
+                Text("This TestFlight build is free for internal testing. Subscriptions and in-app purchases are disabled.")
+                    .font(AppFont.caption())
+                    .foregroundStyle(.secondary)
+            } else if subscriptions.hasProAccess {
                 Text("Your Pro access is active. You can still restore purchases or manage the purchase from Apple.")
                     .font(AppFont.caption())
                     .foregroundStyle(.secondary)
@@ -401,23 +405,27 @@ private struct SettingsSubscriptionCard: View {
                     .foregroundStyle(.secondary)
             }
 
-            SettingsButton(subscriptions.hasProAccess ? "View Pro" : "Upgrade to Pro") {
-                isPresentingPaywall = true
-            }
-
-            SettingsButton("Redeem Code") {
-                isPresentingOfferCodeRedemption = true
-            }
-            .disabled(subscriptions.isPurchasing || subscriptions.isRestoring)
-
-            SettingsButton(subscriptions.isRestoring ? "Restoring..." : "Restore Purchases", isLoading: subscriptions.isRestoring) {
-                Task {
-                    await subscriptions.restorePurchases()
+            if !AppEnvironment.isPrivateTestFlightBuild {
+                SettingsButton(subscriptions.hasProAccess ? "View Pro" : "Upgrade to Pro") {
+                    isPresentingPaywall = true
                 }
-            }
-            .disabled(subscriptions.isPurchasing)
 
-            if let error = subscriptions.lastErrorMessage, !error.isEmpty {
+                SettingsButton("Redeem Code") {
+                    isPresentingOfferCodeRedemption = true
+                }
+                .disabled(subscriptions.isPurchasing || subscriptions.isRestoring)
+
+                SettingsButton(subscriptions.isRestoring ? "Restoring..." : "Restore Purchases", isLoading: subscriptions.isRestoring) {
+                    Task {
+                        await subscriptions.restorePurchases()
+                    }
+                }
+                .disabled(subscriptions.isPurchasing)
+            }
+
+            if !AppEnvironment.isPrivateTestFlightBuild,
+               let error = subscriptions.lastErrorMessage,
+               !error.isEmpty {
                 Text(error)
                     .font(AppFont.caption())
                     .foregroundStyle(.red)
@@ -441,6 +449,20 @@ private struct SettingsSubscriptionCard: View {
             }
             await subscriptions.bootstrap()
         }
+    }
+
+    private var subscriptionStatusText: String {
+        if AppEnvironment.isPrivateTestFlightBuild {
+            return "Free TestFlight"
+        }
+        return subscriptions.hasProAccess ? "Active" : "Free"
+    }
+
+    private var subscriptionStatusColor: Color {
+        if AppEnvironment.isPrivateTestFlightBuild || subscriptions.hasProAccess {
+            return .green
+        }
+        return .secondary
     }
 }
 

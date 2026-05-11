@@ -477,14 +477,17 @@ Phase 3 不建议偷偷绕过 Release 付费墙。正确做法是二选一：
 
 #### 内部测试包命名
 
-当前内部 Debug 包先使用 `Gogodex` 作为手机桌面显示名和主要入口品牌。Release 配置暂时保留原显示名，避免在还没完成 bundle id、legal、RevenueCat、App Store metadata 前误认为已经完成商用 rebranding。
+当前内部 Debug 包和免费 TestFlight Release 包都使用 `Gogodex` 作为手机桌面显示名和主要入口品牌。Release 已切到自己的 bundle id，并通过 `PRIVATE_TESTFLIGHT_BUILD` 关闭订阅门槛，避免第一版测试包弹出原作者付费墙。
 
 当前边界：
 
 - Debug `APP_DISPLAY_NAME = Gogodex`。
-- Release `APP_DISPLAY_NAME = Remodex`，等待 Phase 3 商用包装统一处理。
+- Release `APP_DISPLAY_NAME = Gogodex`。
+- Release `PRODUCT_BUNDLE_IDENTIFIER = com.gotradetalk.gogodex`。
+- Release `PRIVATE_TESTFLIGHT_BUILD = YES`，当前测试包不初始化 RevenueCat、不展示购买入口。
+- 默认 relay 使用 `wss://codex.gotradetalk.com/relay`。
 - iOS 入口页、侧边栏和空状态先显示 `Gogodex`。
-- 图标、完整文案、legal links、付费墙品牌仍属于 Phase 3，不在这一步混改。
+- 图标和基础 Settings 文案已切到 `Gogodex`；完整 App Store metadata、legal links、截图、审核说明仍属于 Phase 3 发布准备。
 
 ## Phase 3A：免费 TestFlight 发布计划
 

@@ -11,6 +11,7 @@ enum AppEnvironment {
     private static let revenueCatPublicAPIKeyInfoPlistKey = "REVENUECAT_PUBLIC_API_KEY"
     private static let revenueCatEntitlementNameInfoPlistKey = "REVENUECAT_ENTITLEMENT_NAME"
     private static let revenueCatDefaultOfferingIDInfoPlistKey = "REVENUECAT_DEFAULT_OFFERING_ID"
+    private static let privateTestFlightBuildInfoPlistKey = "PRIVATE_TESTFLIGHT_BUILD"
     private static let supportEmailAddress = "tonywei49@gmail.com"
 
     // Open-source builds should provide an explicit relay instead of silently
@@ -37,6 +38,10 @@ enum AppEnvironment {
     // Mirrors the RevenueCat default offering ID used in the dashboard.
     static var revenueCatDefaultOfferingID: String {
         resolvedString(forInfoPlistKey: revenueCatDefaultOfferingIDInfoPlistKey) ?? "default"
+    }
+
+    static var isPrivateTestFlightBuild: Bool {
+        resolvedBool(forInfoPlistKey: privateTestFlightBuildInfoPlistKey)
     }
 
     // Legal links shown in the paywall footer and Settings.
@@ -94,6 +99,17 @@ private extension AppEnvironment {
         }
 
         return trimmedValue
+    }
+
+    static func resolvedBool(forInfoPlistKey key: String) -> Bool {
+        guard let rawValue = resolvedString(forInfoPlistKey: key)?.lowercased() else {
+            return false
+        }
+
+        return rawValue == "yes"
+            || rawValue == "true"
+            || rawValue == "1"
+            || rawValue == "enabled"
     }
 
     static func feedbackBody(

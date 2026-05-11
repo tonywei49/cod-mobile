@@ -4,7 +4,7 @@
 <dict>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
-		<string>com.emanueledipietro.CodexMobile.refresh</string>
+		<string>$(PRODUCT_BUNDLE_IDENTIFIER).refresh</string>
 	</array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
@@ -28,10 +28,10 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>com.emanueledipietro.CodexMobile.auth</string>
+			<string>$(PRODUCT_BUNDLE_IDENTIFIER).auth</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>phodex</string>
+				<string>$(PHODEX_CHATGPT_CALLBACK_SCHEME)</string>
 			</array>
 		</dict>
 	</array>
@@ -49,15 +49,15 @@
 		<true/>
 	</dict>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>CodexMobile needs local network access to connect to your Codex app-server running on your Mac.</string>
+	<string>$(APP_DISPLAY_NAME) needs local network access to connect to your Codex app-server running on your Mac.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>$(APP_DISPLAY_NAME) needs microphone access to record voice notes for ChatGPT transcription.</string>
 	<key>NSBonjourServices</key>
 	<array>
-		<string>_remodex-permission._tcp</string>
+		<string>_gogodex-permission._tcp</string>
 	</array>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>CodexMobile needs photo library access to let you attach images to your messages.</string>
+	<string>$(APP_DISPLAY_NAME) needs photo library access to let you attach images to your messages.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>$(APP_DISPLAY_NAME) needs photo library access to let you save rendered diagrams and attachments.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
@@ -72,6 +72,8 @@
 	<string>$(REVENUECAT_ENTITLEMENT_NAME)</string>
 	<key>REVENUECAT_DEFAULT_OFFERING_ID</key>
 	<string>$(REVENUECAT_DEFAULT_OFFERING_ID)</string>
+	<key>PRIVATE_TESTFLIGHT_BUILD</key>
+	<string>$(PRIVATE_TESTFLIGHT_BUILD)</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>JetBrainsMono-Regular.ttf</string>

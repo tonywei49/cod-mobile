@@ -47,6 +47,7 @@
 "Font" = "Font";
 "Forget Pair" = "Forget Pair";
 "Free" = "Free";
+"Free TestFlight" = "Free TestFlight";
 "Get Started" = "Get Started";
 "Git from your phone" = "Git from your phone";
 "Git writer model" = "Git writer model";
@@ -152,6 +153,7 @@
 "Then scan the new QR code from the iPhone" = "Then scan the new QR code from the iPhone";
 "This Mac is running a different build than the current npm latest." = "This Mac is running a different build than the current npm latest.";
 "This chat is no longer available. Start a new chat instead?" = "This chat is no longer available. Start a new chat instead?";
+"This TestFlight build is free for internal testing. Subscriptions and in-app purchases are disabled." = "This TestFlight build is free for internal testing. Subscriptions and in-app purchases are disabled.";
 "This nickname stays on this iPhone and appears anywhere this computer is shown." = "This nickname stays on this iPhone and appears anywhere this computer is shown.";
 "Traditional Chinese" = "Traditional Chinese";
 "Unlock Now" = "Unlock Now";

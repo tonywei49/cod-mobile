@@ -382,7 +382,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
-				zh-Hant,
+				"zh-Hant",
 				Base,
 			);
 			mainGroup = C09A76A52F4B8D7B003B3F3A;
@@ -718,9 +718,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 3B1A9C7D5E4F60718293A4B5 /* BuildSupport/Base.xcconfig */;
 			buildSettings = {
-				APS_ENVIRONMENT = development;
 				APP_DISPLAY_NAME = Gogodex;
-				ASSETCATALOG_COMPILER_APPICON_NAME = Remodex;
+				APS_ENVIRONMENT = development;
+				ASSETCATALOG_COMPILER_APPICON_NAME = Gogodex;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -732,8 +732,8 @@
 				INFOPLIST_FILE = "BuildSupport/CodexMobile-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = Gogodex;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
-				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "CodexMobile needs local network access to connect to your Codex app-server running on your Mac.";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "CodexMobile needs photo library access to let you attach images to your messages.";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Gogodex needs local network access to connect to your Codex app-server running on your Mac.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Gogodex needs photo library access to let you attach images to your messages.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -745,6 +745,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.5;
+				PRIVATE_TESTFLIGHT_BUILD = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yuhungwei.CodexMobileDev;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -765,23 +766,23 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 3B1A9C7D5E4F60718293A4B5 /* BuildSupport/Base.xcconfig */;
 			buildSettings = {
+				APP_DISPLAY_NAME = Gogodex;
 				APS_ENVIRONMENT = production;
-				APP_DISPLAY_NAME = Remodex;
-				ASSETCATALOG_COMPILER_APPICON_NAME = Remodex;
+				ASSETCATALOG_COMPILER_APPICON_NAME = Gogodex;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				"CODE_SIGN_ENTITLEMENTS[sdk=iphoneos*]" = CodexMobile/CodexMobile.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 113;
 				DEVELOPMENT_TEAM = T8QZ366D68;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = "BuildSupport/CodexMobile-Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = Remodex;
+				INFOPLIST_KEY_CFBundleDisplayName = Gogodex;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
-				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "CodexMobile needs local network access to connect to your Codex app-server running on your Mac.";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "CodexMobile needs photo library access to let you attach images to your messages.";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Gogodex needs local network access to connect to your Codex app-server running on your Mac.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Gogodex needs photo library access to let you attach images to your messages.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -793,7 +794,8 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.5;
-				PRODUCT_BUNDLE_IDENTIFIER = com.emanueledipietro.Remodex;
+				PRIVATE_TESTFLIGHT_BUILD = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gotradetalk.gogodex;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;

@@ -47,6 +47,7 @@
 "Font" = "字體";
 "Forget Pair" = "忘記配對";
 "Free" = "免費";
+"Free TestFlight" = "免費 TestFlight";
 "Get Started" = "開始";
 "Git from your phone" = "用手機操作 Git";
 "Git writer model" = "Git 寫作模型";
@@ -152,6 +153,7 @@
 "Then scan the new QR code from the iPhone" = "然後用 iPhone 掃描新的 QR code";
 "This Mac is running a different build than the current npm latest." = "這台 Mac 正在執行的版本和目前 npm 最新版不同。";
 "This chat is no longer available. Start a new chat instead?" = "這個對話已不存在。要改開新對話嗎？";
+"This TestFlight build is free for internal testing. Subscriptions and in-app purchases are disabled." = "這個 TestFlight 版本是內部免費測試版，訂閱和 App 內購買已停用。";
 "This nickname stays on this iPhone and appears anywhere this computer is shown." = "這個暱稱只會儲存在這台 iPhone，並顯示在所有出現這台電腦的地方。";
 "Traditional Chinese" = "繁體中文";
 "Unlock Now" = "立即解鎖";
