@@ -94,7 +94,7 @@ struct SubscriptionGateView: View {
                 )
 
             VStack(spacing: 10) {
-                Text("Remodex Pro Required")
+                Text("Gogodex Pro Required")
                     .font(AppFont.system(size: 24, weight: .bold))
                     .foregroundStyle(primaryTextColor)
                     .multilineTextAlignment(.center)
@@ -275,7 +275,7 @@ struct SubscriptionGateView: View {
     private var pricingPlaceholderRow: some View {
         HStack {
             VStack(alignment: .leading, spacing: 6) {
-                Text("Remodex Pro")
+                Text("Gogodex Pro")
                     .font(AppFont.subheadline(weight: .semibold))
                 Text("$0.00 / month")
                     .font(AppFont.caption())

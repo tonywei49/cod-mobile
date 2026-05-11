@@ -80,7 +80,7 @@ extension CodexService {
             }
             if consumeUnsupportedThreadFork(error) {
                 throw CodexServiceError.invalidInput(
-                    "This computer bridge does not support native thread forks yet. Update Remodex on your computer and retry."
+                    "This computer bridge does not support native thread forks yet. Update Gogodex on your computer and retry."
                 )
             }
             throw error

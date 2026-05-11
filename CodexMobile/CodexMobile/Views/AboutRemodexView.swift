@@ -36,7 +36,7 @@ struct AboutRemodexView: View {
                 .padding(.bottom, 40)
             }
             .font(AppFont.body())
-            .navigationTitle("About Remodex")
+            .navigationTitle("About Gogodex")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -50,7 +50,7 @@ struct AboutRemodexView: View {
 
     @ViewBuilder private var header: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("Remodex")
+            Text("Gogodex")
                 .font(AppFont.headline(weight: .bold))
                 .foregroundStyle(.primary)
 
@@ -97,7 +97,7 @@ struct AboutRemodexView: View {
             sectionTitle("Architecture")
 
             VStack(spacing: 0) {
-                diagramStep(from: "Remodex iOS", to: "Bridge (Mac)", via: "WebSocket")
+                diagramStep(from: "Gogodex iOS", to: "Bridge (Mac)", via: "WebSocket")
                 diagramStep(from: "Bridge (Mac)", to: "codex app-server", via: "JSON-RPC")
                 diagramStep(from: "codex app-server", to: "~/.codex/sessions", via: "JSONL rollout", isLast: true)
             }

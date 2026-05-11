@@ -1150,7 +1150,7 @@ final class TurnViewModel {
         }
 
         if let subscriptions, !subscriptions.hasAppAccess {
-            codex.lastErrorMessage = "Your 5 free messages are over. Unlock Remodex Pro to keep chatting."
+            codex.lastErrorMessage = "Your 5 free messages are over. Unlock Gogodex Pro to keep chatting."
             return
         }
 

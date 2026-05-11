@@ -110,7 +110,7 @@ private func looksLikeRemodexPairingPayload(_ data: Data) -> Bool {
 
 private func makeScannerBridgeUpdatePrompt(message: String) -> CodexBridgeUpdatePrompt {
     CodexBridgeUpdatePrompt(
-        title: "Update Remodex on your computer before scanning",
+        title: "Update Gogodex on your computer before scanning",
         message: message,
         command: qrScannerBridgeUpdateCommand
     )

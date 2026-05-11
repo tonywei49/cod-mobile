@@ -382,7 +382,7 @@ private struct SettingsSubscriptionCard: View {
     @State private var isPresentingOfferCodeRedemption = false
 
     var body: some View {
-        SettingsCard(title: "Remodex Pro") {
+        SettingsCard(title: "Gogodex Pro") {
             HStack {
                 Text("Status")
                 Spacer()
@@ -1026,7 +1026,7 @@ private struct SettingsAboutCard: View {
                 isShowingAbout = true
             } label: {
                 settingsAccessoryRow(
-                    title: "How Remodex Works",
+                    title: "How Gogodex Works",
                     leading: {
                         Image(systemName: "info.circle")
                             .font(AppFont.subheadline(weight: .medium))

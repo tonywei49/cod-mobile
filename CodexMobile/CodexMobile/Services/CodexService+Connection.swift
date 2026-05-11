@@ -400,16 +400,16 @@ extension CodexService {
         } else if let bridgeVersion, !bridgeVersion.isEmpty,
                   let minimumSupportedAppVersion, !minimumSupportedAppVersion.isEmpty {
             promptMessage =
-                "This computer bridge is running Remodex \(bridgeVersion), which requires Remodex iPhone \(minimumSupportedAppVersion) or newer. Update the iPhone app, then reconnect."
+                "This computer bridge is running Gogodex \(bridgeVersion), which requires Gogodex iPhone \(minimumSupportedAppVersion) or newer. Update the iPhone app, then reconnect."
         } else if let minimumSupportedAppVersion, !minimumSupportedAppVersion.isEmpty {
             promptMessage =
-                "This computer bridge requires Remodex iPhone \(minimumSupportedAppVersion) or newer. Update the iPhone app, then reconnect."
+                "This computer bridge requires Gogodex iPhone \(minimumSupportedAppVersion) or newer. Update the iPhone app, then reconnect."
         } else {
-            promptMessage = "This computer bridge requires a newer Remodex iPhone app. Update the app, then reconnect."
+            promptMessage = "This computer bridge requires a newer Gogodex iPhone app. Update the app, then reconnect."
         }
 
         bridgeUpdatePrompt = CodexBridgeUpdatePrompt(
-            title: "Update Remodex on your iPhone to reconnect",
+            title: "Update Gogodex on your iPhone to reconnect",
             message: promptMessage,
             command: nil
         )

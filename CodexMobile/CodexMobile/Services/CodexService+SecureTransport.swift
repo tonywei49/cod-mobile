@@ -73,7 +73,7 @@ extension CodexService {
                 message: "This bridge is using a different secure transport version. Update the Gogodex package on your computer and try again."
             )
             throw CodexSecureTransportError.incompatibleVersion(
-                "This bridge is using a different secure transport version. Update Remodex on the iPhone or Mac and try again."
+                "This bridge is using a different secure transport version. Update Gogodex on the iPhone or Mac and try again."
             )
         }
         guard serverHello.sessionId == sessionId else {
