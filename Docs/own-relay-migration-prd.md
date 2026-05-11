@@ -27,6 +27,8 @@ Remodex 现在的架构本来就是 local-first：
 - 验证通过这个 relay 扫 QR 配对。
 - 验证通过这个 relay 进行 trusted reconnect。
 - 验证手机端发出的消息能落盘到 Codex session，并能让桌面端 Codex.app 通过刷新机制看到。
+- 补强双端消息可见性：手机端发出的消息要尽量让桌面端可发现，桌面端后续发出的消息也要让手机端在前台持续对齐。
+- 先完成基础界面 i18n：至少覆盖设定、登录/配对、主要连接状态等界面的英文和繁体中文。
 - 在 Phase 1 末尾把 bridge 和 relay 的运行方式固化成开机自启动，避免 Mac 重启或终端关闭后手机端显示 offline。
 - 补充最小必要文档，说明本地、隧道、VPS 三种 relay 搭建方式。
 - 只有在运行链路跑通后，才考虑给 iOS 或 npm 包加我们自己的默认 relay 配置。
@@ -54,6 +56,8 @@ Remodex 现在的架构本来就是 local-first：
 - 关闭并重新打开 iPhone App 后，可以通过 trusted session resolve 自动重连，不需要重新扫码。
 - 手机端发出的 prompt 会写入 `~/.codex/sessions` 里对应的 JSONL rollout 文件。
 - Codex.app 桌面端能通过明确启用的 refresh workaround 跳到或刷新对应 thread。
+- 手机端发出的 prompt 会同步写入 Codex Desktop session index，桌面端至少能在刷新/重开后看到对应 thread。
+- 当手机端停留在一个已加载的会话里，桌面端后续发出的消息不需要重开手机 App，也应在前台低频刷新后对齐。
 - Mac 重启后，relay 和 bridge 会自动启动；手机端不应该因为终端关闭而长期 offline。
 - relay 日志不打印 live `sessionId`，也不打印明文 prompt。
 - 没有任何代码路径会偷偷退回作者控制的 relay。
@@ -311,8 +315,65 @@ ssh <server-user>@<server-host> \
 - 重启 App，验证 trusted reconnect。
 - 在 Mac 上确认手机 prompt 已写入 `~/.codex/sessions/YYYY/MM/DD/*.jsonl`。
 - 启用 `REMODEX_REFRESH_ENABLED=true` 和 `REMODEX_REFRESH_MODE=completion` 后，确认 Codex.app 能在手机端回合完成后自动刷新到对应 thread。
+- 确认手机端发出的消息会写入 `~/.codex/session_index.jsonl`，桌面端能在会话索引里发现对应 thread。
+- 确认同一个会话里，先连续用手机端发消息，再切到桌面端发消息，手机端在前台不用重开 App 也能低频刷新并对齐桌面端新内容。
 - 把 bridge 设置成 macOS `launchd` 开机自启动。
 - 如果 relay 运行在 Mac 或自有服务器上，把 relay 也设置成开机自启动。
+
+### 已完成优化补录
+
+这些内容已经进入当前代码分支，但之前没有完整写进 PRD。后续验收和回归测试要把它们当作 Phase 1 的实际范围。
+
+#### 自有 Relay / Bridge 运行链路
+
+- 已补齐自托管 relay 代码和文档入口，公开源码不内置作者私有 relay。
+- bridge 支持通过 `REMODEX_RELAY` 指向自有 relay。
+- bridge restart 会复用已经保存的 daemon 配置，避免每次重启都重新手动输入 relay 和 refresh 参数。
+- macOS 后台服务仍然是 Phase 1 的标准运行方式，临时终端只用于调试。
+
+验收重点：
+
+- `remodex status --json` 能看到 daemon 使用的是自有 relay。
+- `remodex restart --json` 后 relay URL 和 refresh 配置不丢失。
+- 不允许出现自有 relay 不通后自动退回作者 relay 的隐藏路径。
+
+#### 手机端到桌面端可见性优化
+
+- bridge 已增加 Codex Desktop session index 同步：手机端发出的 `thread/start`、`turn/start` 会写入 `~/.codex/session_index.jsonl`。
+- 新增索引标题使用 `手机：<首段文字>`，并保留桌面端已经手动改过的标题。
+- 这个优化不改变原本 remodexd / app-server 协议，只是在 bridge 侧补齐桌面端发现 thread 所需的索引。
+
+验收重点：
+
+- 手机端发送新消息后，`~/.codex/session_index.jsonl` 有对应 thread 记录。
+- Codex.app 桌面端刷新或重新打开后，能找到手机端创建或继续的会话。
+- 不把这个能力描述成真正实时双向 mirror；它是桌面端发现能力增强。
+
+#### 桌面端到手机端对齐优化
+
+- 手机端同步层已增加“前台当前关闭会话低频刷新”。
+- 原问题是：已加载过的关闭会话会直接跳过 `thread/read`，所以桌面端后来发的新内容，手机端只能重开 App 才对齐。
+- 现在手机端在前台、连接正常、停留当前 thread 时，每 10 秒最多放行一次历史刷新，用来拉取桌面端后续写入的消息。
+- 大型延迟加载会话仍保留原来的轻量路径，不把高频强制历史读取打满。
+
+验收重点：
+
+- 同一会话里，连续从手机端发送几次消息后，切到桌面端发送消息。
+- 手机 App 不重启，保持前台停在该会话。
+- 预期手机端在约 10 秒级别内刷新到桌面端新内容。
+- 如果 Codex.app 本身不把内容写入 app-server 可读历史，这个优化不能伪装成成功，必须明确记录上游限制。
+
+#### i18n 基础界面
+
+- 已增加 App 语言模型和本地化资源。
+- 已在 Settings 增加语言切换入口。
+- 第一版覆盖目标是英文和繁体中文，优先覆盖设定、登录/配对、连接状态、常用按钮和错误提示。
+
+验收重点：
+
+- Settings 可以切换系统语言、英文、繁体中文。
+- 切换后主要界面文案立即或重新进入页面后显示正确语言。
+- 新增 UI 文案后必须同步补英文和繁体中文 key，不能只写死英文。
 
 ### Phase 2：写入自有默认配置
 
@@ -385,12 +446,20 @@ remodex up
 - 手机 prompt 能启动 Codex turn。
 - 输出能流式返回手机。
 - 手机 prompt 能在桌面端对应 session 文件中查到。
+- 手机 prompt 能在桌面端 session index 中查到。
 - Codex.app 能被 refresh workaround 自动带到或刷新对应 thread。
+- 桌面端继续发送消息后，手机端保持前台不重开 App 也能刷新对齐。
 - 如果 Codex 请求权限，Stop / approval UI 仍然正常。
 - App 重启后无需扫码即可重连。
 - 重启 Mac 后 bridge 自动恢复连接。
 - 如果 relay 由我们自己运行，重启 relay 所在机器后 relay 自动恢复 `/health`。
 - bridge 日志没有显示退回其他 relay。
+
+### 当前已知测试状态
+
+- `phodex-bridge` 相关 Node 测试已覆盖 session index 同步和 bridge 行为。
+- iOS App target 的 Debug build 需要保持通过。
+- 当前测试 target 里存在旧的 `TurnViewModelQueueTests.swift` 编译问题：两个 `try XCTUnwrap` 未处理错误会挡住单测运行。这个问题不是本次同步优化引入，但在进入商用包装前要单独修掉，否则无法把 iOS 单测作为稳定回归门槛。
 
 ## 风险
 
