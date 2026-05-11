@@ -905,7 +905,7 @@ private struct SettingsBridgeVersionCard: View {
         }
 
         if installedVersion.compare(latestVersion, options: .numeric) == .orderedAscending {
-            return "A newer Remodex package is available on npm."
+            return "A newer Gogodex package is available on npm."
         }
 
         return "This Mac is running a different build than the current npm latest."

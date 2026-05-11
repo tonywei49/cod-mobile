@@ -6,10 +6,10 @@
 
 import Foundation
 
-private let minimumBridgePackageUpdateCommand = "npm install -g remodex@latest"
+private let minimumBridgePackageUpdateCommand = "npm install -g gogodex@latest"
 private let forcedBridgeUpgradeFromVersion = "1.3.8"
 private let forcedBridgeUpgradeTargetVersion = "1.3.9"
-private let forcedBridgeUpgradeCommand = "npm install -g remodex@1.3.9"
+private let forcedBridgeUpgradeCommand = "npm install -g gogodex@1.3.9"
 
 enum CodexGPTAccountStatus: String, Codable, Sendable {
     case unknown
@@ -208,7 +208,7 @@ extension CodexService {
         }
     }
 
-    // Refreshes only the bridge package version state so Remodex updates stay independent from GPT UX.
+    // Refreshes only the bridge package version state so package updates stay independent from GPT UX.
     func refreshBridgeVersionState(allowAvailableBridgeUpdatePrompt: Bool = false) async {
         guard isConnected else {
             return
@@ -800,14 +800,14 @@ extension CodexService {
         if let currentVersion = currentVersion?.trimmingCharacters(in: .whitespacesAndNewlines),
            !currentVersion.isEmpty {
             message =
-                "This computer bridge is running Remodex \(currentVersion), but this iPhone app requires Remodex \(CodexService.minimumSupportedBridgePackageVersion) or newer. Update the npm package on your computer, then reconnect."
+                "This computer bridge is running Gogodex \(currentVersion), but this iPhone app requires Gogodex \(CodexService.minimumSupportedBridgePackageVersion) or newer. Update the npm package on your computer, then reconnect."
         } else {
             message =
-                "This computer bridge is too old for this version of Remodex iPhone. Update the Remodex npm package on your computer to \(CodexService.minimumSupportedBridgePackageVersion) or newer, then reconnect."
+                "This computer bridge is too old for this version of the iPhone app. Update the Gogodex npm package on your computer to \(CodexService.minimumSupportedBridgePackageVersion) or newer, then reconnect."
         }
 
         return CodexBridgeUpdatePrompt(
-            title: "Update Remodex on your computer to reconnect",
+            title: "Update Gogodex on your computer to reconnect",
             message: message,
             command: minimumBridgePackageUpdateCommand
         )
@@ -872,16 +872,16 @@ extension CodexService {
         latestVersion: String
     ) -> CodexBridgeUpdatePrompt {
         CodexBridgeUpdatePrompt(
-            title: "A newer Remodex update is available on your computer",
-            message: "This computer bridge is running Remodex \(currentVersion), and npm now has Remodex \(latestVersion). Update the package on your computer when you're ready, then reconnect to start using the newer build.",
+            title: "A newer Gogodex update is available on your computer",
+            message: "This computer bridge is running Gogodex \(currentVersion), and npm now has Gogodex \(latestVersion). Update the package on your computer when you're ready, then reconnect to start using the newer build.",
             command: minimumBridgePackageUpdateCommand
         )
     }
 
     private func forcedBridgePackageUpdatePrompt(currentVersion: String) -> CodexBridgeUpdatePrompt {
         CodexBridgeUpdatePrompt(
-            title: "Update Remodex on your computer to reconnect",
-            message: "This computer bridge is running Remodex \(currentVersion). Update the Remodex CLI on your computer to \(forcedBridgeUpgradeTargetVersion), then reconnect.",
+            title: "Update Gogodex on your computer to reconnect",
+            message: "This computer bridge is running Gogodex \(currentVersion). Update the Gogodex CLI on your computer to \(forcedBridgeUpgradeTargetVersion), then reconnect.",
             command: forcedBridgeUpgradeCommand
         )
     }

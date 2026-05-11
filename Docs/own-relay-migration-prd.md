@@ -417,6 +417,8 @@ PHODEX_DEFAULT_RELAY_URL = wss:/$()/codex.gotradetalk.com/relay
 
 bridge 也不能把真实 relay 写进源码默认值。
 
+当前 fork 的 npm 包身份使用 `gogodex`，但 CLI 命令先继续保留 `remodex`。这样可以先切断原作者 npm 更新提示，又不破坏现有 `remodex up`、launchd 服务和本机脚本。
+
 可选的私有 npm 包构建方式：
 
 ```bash
@@ -435,6 +437,7 @@ REMODEX_RELAY="wss://codex.gotradetalk.com/relay" remodex up
 验收重点：
 
 - 公开源码里搜索不到真实 relay 域名。
+- bridge `package.json` 的包名是 `gogodex`，手机端更新指令不再提示 `npm install -g remodex@latest`。
 - 本机 iOS Debug build 能读到 `PrivateOverrides.xcconfig` 的默认 relay。
 - 私有 npm 包或本机 daemon 能明确指向自有 relay。
 - 没有任何作者 relay 的隐藏 fallback。

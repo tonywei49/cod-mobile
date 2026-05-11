@@ -1,22 +1,22 @@
 // FILE: package-version-status.js
-// Purpose: Reads the installed Remodex package version and caches the latest published npm version.
+// Purpose: Reads the installed bridge package version and caches the latest published npm version.
 // Layer: CLI helper
 // Exports: createBridgePackageVersionStatusReader
 // Depends on: https, ../package.json
 
 const https = require("https");
-const { version: installedVersion = "" } = require("../package.json");
+const { name: packageName = "gogodex", version: installedVersion = "" } = require("../package.json");
 
 const DEFAULT_CACHE_TTL_MS = 30 * 60 * 1000;
 const DEFAULT_EMPTY_CACHE_RETRY_MS = 60 * 1000;
 const DEFAULT_INITIAL_FETCH_WAIT_MS = 250;
-const REMODEX_REGISTRY_URL = "https://registry.npmjs.org/remodex/latest";
+const DEFAULT_REGISTRY_URL = `https://registry.npmjs.org/${encodeURIComponent(packageName)}/latest`;
 
 function createBridgePackageVersionStatusReader({
   cacheTtlMs = DEFAULT_CACHE_TTL_MS,
   emptyCacheRetryMs = DEFAULT_EMPTY_CACHE_RETRY_MS,
   initialFetchWaitMs = DEFAULT_INITIAL_FETCH_WAIT_MS,
-  registryUrl = REMODEX_REGISTRY_URL,
+  registryUrl = DEFAULT_REGISTRY_URL,
   fetchLatestPublishedVersionImpl = fetchLatestPublishedVersion,
 } = {}) {
   let cachedLatestVersion = "";

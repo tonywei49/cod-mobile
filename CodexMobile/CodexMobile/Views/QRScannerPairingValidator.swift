@@ -13,7 +13,7 @@ enum QRScannerPairingValidationResult {
     case bridgeUpdateRequired(CodexBridgeUpdatePrompt)
 }
 
-private let qrScannerBridgeUpdateCommand = "npm install -g remodex@latest"
+private let qrScannerBridgeUpdateCommand = "npm install -g gogodex@latest"
 private let qrScannerPairingCodePrefix = "RMX1:"
 private let qrScannerShortCodePattern = "^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{8,12}$"
 

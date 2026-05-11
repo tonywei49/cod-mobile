@@ -70,7 +70,7 @@ extension CodexService {
         )
         guard serverHello.protocolVersion == codexSecureProtocolVersion else {
             presentBridgeUpdatePrompt(
-                message: "This bridge is using a different secure transport version. Update the Remodex package on your computer and try again."
+                message: "This bridge is using a different secure transport version. Update the Gogodex package on your computer and try again."
             )
             throw CodexSecureTransportError.incompatibleVersion(
                 "This bridge is using a different secure transport version. Update Remodex on the iPhone or Mac and try again."
@@ -488,9 +488,9 @@ private extension CodexService {
     // Centralizes the bridge-update guidance so every mismatch shows the same Mac command.
     func presentBridgeUpdatePrompt(message: String) {
         bridgeUpdatePrompt = CodexBridgeUpdatePrompt(
-            title: "Update the Remodex package on your computer",
+            title: "Update the Gogodex package on your computer",
             message: message,
-            command: "npm install -g remodex@latest"
+            command: "npm install -g gogodex@latest"
         )
     }
 

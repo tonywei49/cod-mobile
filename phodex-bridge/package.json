@@ -1,5 +1,5 @@
 {
-  "name": "remodex",
+  "name": "gogodex",
   "version": "1.5.0",
   "description": "Local bridge between Codex and the Remodex mobile app. Run `remodex up` to start.",
   "main": "src/index.js",
@@ -18,6 +18,7 @@
     "postpack": "node ./scripts/cleanup-private-defaults.js"
   },
   "keywords": [
+    "gogodex",
     "remodex",
     "codex",
     "bridge",
