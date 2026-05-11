@@ -38,6 +38,7 @@ struct CodexMessage: Identifiable, Codable, Hashable, Sendable {
     var text: String
     var fileMentions: [String]
     var createdAt: Date
+    var usesSyntheticTimestamp: Bool
     var turnId: String?
     var itemId: String?
     var isStreaming: Bool
@@ -62,6 +63,7 @@ struct CodexMessage: Identifiable, Codable, Hashable, Sendable {
         text: String,
         fileMentions: [String] = [],
         createdAt: Date = Date(),
+        usesSyntheticTimestamp: Bool = false,
         turnId: String? = nil,
         itemId: String? = nil,
         isStreaming: Bool = false,
@@ -82,6 +84,7 @@ struct CodexMessage: Identifiable, Codable, Hashable, Sendable {
         self.text = text
         self.fileMentions = fileMentions
         self.createdAt = createdAt
+        self.usesSyntheticTimestamp = usesSyntheticTimestamp
         self.turnId = turnId
         self.itemId = itemId
         self.isStreaming = isStreaming
@@ -118,6 +121,7 @@ struct CodexMessage: Identifiable, Codable, Hashable, Sendable {
         case text
         case fileMentions
         case createdAt
+        case usesSyntheticTimestamp
         case turnId
         case itemId
         case isStreaming
@@ -141,6 +145,7 @@ struct CodexMessage: Identifiable, Codable, Hashable, Sendable {
         text = try container.decode(String.self, forKey: .text)
         fileMentions = try container.decodeIfPresent([String].self, forKey: .fileMentions) ?? []
         createdAt = try container.decode(Date.self, forKey: .createdAt)
+        usesSyntheticTimestamp = try container.decodeIfPresent(Bool.self, forKey: .usesSyntheticTimestamp) ?? false
         turnId = try container.decodeIfPresent(String.self, forKey: .turnId)
         itemId = try container.decodeIfPresent(String.self, forKey: .itemId)
         isStreaming = try container.decodeIfPresent(Bool.self, forKey: .isStreaming) ?? false

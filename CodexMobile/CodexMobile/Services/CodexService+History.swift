@@ -13,6 +13,11 @@ private enum RunningThreadHistoryCatchupPolicy {
     static let cancellationCheckInterval = 32
 }
 
+private struct HistoryTimestamp {
+    let date: Date
+    let isSynthetic: Bool
+}
+
 extension CodexService {
     nonisolated static func shouldPreferRecentHistoryWindow(
         existingCount: Int,
@@ -66,7 +71,7 @@ extension CodexService {
 
     // Decodes app-server turn arrays into a chronological message timeline.
     func decodeMessagesFromThreadRead(threadId: String, threadObject: [String: JSONValue]) -> [CodexMessage] {
-        let baseDate = decodeHistoryBaseDate(from: threadObject)
+        let baseTimestamp = decodeHistoryBaseTimestamp(from: threadObject)
         let turns = threadObject["turns"]?.arrayValue ?? []
 
         var offset: TimeInterval = 0
@@ -75,7 +80,7 @@ extension CodexService {
         for turnValue in turns {
             guard let turnObject = turnValue.objectValue else { continue }
             let turnID = turnObject["id"]?.stringValue
-            let turnTimestamp = decodeHistoryTimestamp(from: turnObject)
+            let turnTimestamp = decodeHistoryTimestampInfo(from: turnObject)
             let turnCompleted = historyTurnTerminalState(turnObject) == .completed
             let items = turnObject["items"]?.arrayValue ?? []
 
@@ -85,8 +90,12 @@ extension CodexService {
                     continue
                 }
 
-                let syntheticTimestamp = (turnTimestamp ?? baseDate).addingTimeInterval(offset)
-                let timestamp = decodeHistoryTimestamp(from: itemObject) ?? syntheticTimestamp
+                let fallbackTimestamp = turnTimestamp ?? baseTimestamp
+                let syntheticTimestamp = HistoryTimestamp(
+                    date: fallbackTimestamp.date.addingTimeInterval(offset),
+                    isSynthetic: fallbackTimestamp.isSynthetic
+                )
+                let timestamp = decodeHistoryTimestampInfo(from: itemObject) ?? syntheticTimestamp
                 offset += 0.001
                 let itemID = itemObject["id"]?.stringValue
                 let decodedText = decodeItemText(from: itemObject)
@@ -101,7 +110,8 @@ extension CodexService {
                         threadId: threadId,
                         turnId: turnID,
                         itemId: itemID,
-                        createdAt: timestamp,
+                        createdAt: timestamp.date,
+                        usesSyntheticTimestamp: timestamp.isSynthetic,
                         attachments: imageAttachments
                     )
 
@@ -115,7 +125,8 @@ extension CodexService {
                         threadId: threadId,
                         turnId: turnID,
                         itemId: itemID,
-                        createdAt: timestamp,
+                        createdAt: timestamp.date,
+                        usesSyntheticTimestamp: timestamp.isSynthetic,
                         attachments: imageAttachments
                     )
 
@@ -134,7 +145,8 @@ extension CodexService {
                         threadId: threadId,
                         turnId: turnID,
                         itemId: itemID,
-                        createdAt: timestamp,
+                        createdAt: timestamp.date,
+                        usesSyntheticTimestamp: timestamp.isSynthetic,
                         attachments: imageAttachments
                     )
 
@@ -150,7 +162,8 @@ extension CodexService {
                         threadId: threadId,
                         turnId: turnID,
                         itemId: itemID,
-                        createdAt: timestamp
+                        createdAt: timestamp.date,
+                        usesSyntheticTimestamp: timestamp.isSynthetic
                     )
 
                 case "reasoning":
@@ -162,7 +175,8 @@ extension CodexService {
                         threadId: threadId,
                         turnId: turnID,
                         itemId: itemID,
-                        createdAt: timestamp
+                        createdAt: timestamp.date,
+                        usesSyntheticTimestamp: timestamp.isSynthetic
                     )
 
                 case "filechange":
@@ -174,7 +188,8 @@ extension CodexService {
                         threadId: threadId,
                         turnId: turnID,
                         itemId: itemID,
-                        createdAt: timestamp
+                        createdAt: timestamp.date,
+                        usesSyntheticTimestamp: timestamp.isSynthetic
                     )
 
                 case "toolcall":
@@ -187,7 +202,8 @@ extension CodexService {
                         threadId: threadId,
                         turnId: turnID,
                         itemId: itemID,
-                        createdAt: timestamp
+                        createdAt: timestamp.date,
+                        usesSyntheticTimestamp: timestamp.isSynthetic
                     )
 
                 case "diff":
@@ -200,7 +216,8 @@ extension CodexService {
                         threadId: threadId,
                         turnId: turnID,
                         itemId: itemID,
-                        createdAt: timestamp
+                        createdAt: timestamp.date,
+                        usesSyntheticTimestamp: timestamp.isSynthetic
                     )
 
                 case "commandexecution":
@@ -212,7 +229,8 @@ extension CodexService {
                         threadId: threadId,
                         turnId: turnID,
                         itemId: itemID,
-                        createdAt: timestamp
+                        createdAt: timestamp.date,
+                        usesSyntheticTimestamp: timestamp.isSynthetic
                     )
 
                 case "enteredreviewmode":
@@ -229,7 +247,8 @@ extension CodexService {
                         threadId: threadId,
                         turnId: turnID,
                         itemId: itemID,
-                        createdAt: timestamp
+                        createdAt: timestamp.date,
+                        usesSyntheticTimestamp: timestamp.isSynthetic
                     )
 
                 case "exitedreviewmode":
@@ -246,7 +265,8 @@ extension CodexService {
                         threadId: threadId,
                         turnId: turnID,
                         itemId: itemID,
-                        createdAt: timestamp
+                        createdAt: timestamp.date,
+                        usesSyntheticTimestamp: timestamp.isSynthetic
                     )
 
                 case "contextcompaction":
@@ -258,7 +278,8 @@ extension CodexService {
                         threadId: threadId,
                         turnId: turnID,
                         itemId: itemID,
-                        createdAt: timestamp
+                        createdAt: timestamp.date,
+                        usesSyntheticTimestamp: timestamp.isSynthetic
                     )
 
                 case "plan":
@@ -271,7 +292,8 @@ extension CodexService {
                         threadId: threadId,
                         turnId: turnID,
                         itemId: itemID,
-                        createdAt: timestamp,
+                        createdAt: timestamp.date,
+                        usesSyntheticTimestamp: timestamp.isSynthetic,
                         planState: finalizedHistoryPlanState(decodedPlanState, turnCompleted: turnCompleted),
                         planPresentation: itemID == nil
                             ? .progress
@@ -296,7 +318,8 @@ extension CodexService {
                         threadId: threadId,
                         turnId: turnID,
                         itemId: itemID,
-                        createdAt: timestamp,
+                        createdAt: timestamp.date,
+                        usesSyntheticTimestamp: timestamp.isSynthetic,
                         subagentAction: subagentAction
                     )
 
@@ -328,40 +351,18 @@ extension CodexService {
     }
 
     func decodeHistoryBaseDate(from threadObject: [String: JSONValue]) -> Date {
-        if let rawCreatedAt = threadObject["createdAt"]?.doubleValue {
-            return CodexTimestampParser.decodeUnixTimestamp(rawCreatedAt)
-        }
-        if let rawCreatedAt = threadObject["created_at"]?.doubleValue {
-            return CodexTimestampParser.decodeUnixTimestamp(rawCreatedAt)
+        decodeHistoryBaseTimestamp(from: threadObject).date
+    }
+
+    private func decodeHistoryBaseTimestamp(from threadObject: [String: JSONValue]) -> HistoryTimestamp {
+        let timestampKeys = ["createdAt", "created_at", "updatedAt", "updated_at"]
+        for key in timestampKeys {
+            if let timestamp = decodeHistoryTimestampValue(threadObject[key]) {
+                return HistoryTimestamp(date: timestamp, isSynthetic: false)
+            }
         }
 
-        if let rawUpdatedAt = threadObject["updatedAt"]?.doubleValue {
-            return CodexTimestampParser.decodeUnixTimestamp(rawUpdatedAt)
-        }
-        if let rawUpdatedAt = threadObject["updated_at"]?.doubleValue {
-            return CodexTimestampParser.decodeUnixTimestamp(rawUpdatedAt)
-        }
-
-        if let rawCreatedAt = threadObject["createdAt"]?.stringValue,
-           let parsed = CodexTimestampParser.parseString(rawCreatedAt) {
-            return parsed
-        }
-        if let rawCreatedAt = threadObject["created_at"]?.stringValue,
-           let parsed = CodexTimestampParser.parseString(rawCreatedAt) {
-            return parsed
-        }
-
-        if let rawUpdatedAt = threadObject["updatedAt"]?.stringValue,
-           let parsed = CodexTimestampParser.parseString(rawUpdatedAt) {
-            return parsed
-        }
-        if let rawUpdatedAt = threadObject["updated_at"]?.stringValue,
-           let parsed = CodexTimestampParser.parseString(rawUpdatedAt) {
-            return parsed
-        }
-
-        // Deterministic fallback avoids reshuffling on every sync when server omits timestamps.
-        return Date(timeIntervalSince1970: 0)
+        return HistoryTimestamp(date: Date(), isSynthetic: true)
     }
 
     func decodeUnixTimestamp(_ rawValue: Double) -> Date {
@@ -813,6 +814,10 @@ extension CodexService {
     }
 
     func decodeHistoryTimestamp(from object: [String: JSONValue]) -> Date? {
+        decodeHistoryTimestampInfo(from: object)?.date
+    }
+
+    private func decodeHistoryTimestampInfo(from object: [String: JSONValue]) -> HistoryTimestamp? {
         let numericKeys = [
             "createdAt",
             "created_at",
@@ -823,19 +828,24 @@ extension CodexService {
         ]
 
         for key in numericKeys {
-            if let value = object[key]?.doubleValue {
-                return CodexTimestampParser.decodeUnixTimestamp(value)
-            }
-            if let value = object[key]?.intValue {
-                return CodexTimestampParser.decodeUnixTimestamp(Double(value))
-            }
-            if let value = object[key]?.stringValue {
-                if let parsed = CodexTimestampParser.parseString(value) {
-                    return parsed
-                }
+            if let timestamp = decodeHistoryTimestampValue(object[key]) {
+                return HistoryTimestamp(date: timestamp, isSynthetic: false)
             }
         }
 
+        return nil
+    }
+
+    private func decodeHistoryTimestampValue(_ value: JSONValue?) -> Date? {
+        if let value = value?.doubleValue {
+            return CodexTimestampParser.decodeUnixTimestamp(value)
+        }
+        if let value = value?.intValue {
+            return CodexTimestampParser.decodeUnixTimestamp(Double(value))
+        }
+        if let value = value?.stringValue {
+            return CodexTimestampParser.parseString(value)
+        }
         return nil
     }
 
@@ -868,9 +878,15 @@ extension CodexService {
             value.deliveryState = .confirmed
         }
 
-        if CodexTimestampParser.isTrustworthyServerDate(serverMessage.createdAt),
+        if !serverMessage.usesSyntheticTimestamp,
+           CodexTimestampParser.isTrustworthyServerDate(serverMessage.createdAt),
            abs(value.createdAt.timeIntervalSince(serverMessage.createdAt)) > 0.5 {
             value.createdAt = serverMessage.createdAt
+            value.usesSyntheticTimestamp = false
+        } else if serverMessage.usesSyntheticTimestamp,
+                  !CodexTimestampParser.isTrustworthyServerDate(value.createdAt) {
+            value.createdAt = serverMessage.createdAt
+            value.usesSyntheticTimestamp = true
         }
 
         if value.turnId == nil {
@@ -1385,6 +1401,7 @@ extension CodexService {
         turnId: String?,
         itemId: String?,
         createdAt: Date,
+        usesSyntheticTimestamp: Bool = false,
         attachments: [CodexImageAttachment] = [],
         planState: CodexPlanState? = nil,
         planPresentation: CodexPlanPresentation? = nil,
@@ -1405,6 +1422,7 @@ extension CodexService {
                 assistantPhase: role == .assistant ? normalizedAssistantPhase(assistantPhase) : nil,
                 text: text,
                 createdAt: createdAt,
+                usesSyntheticTimestamp: usesSyntheticTimestamp,
                 turnId: turnId,
                 itemId: itemId,
                 isStreaming: false,

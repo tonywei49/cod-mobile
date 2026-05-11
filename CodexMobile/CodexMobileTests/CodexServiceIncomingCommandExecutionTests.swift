@@ -266,6 +266,72 @@ final class CodexServiceIncomingCommandExecutionTests: XCTestCase {
         XCTAssertEqual(history[0].createdAt.timeIntervalSince1970, expectedDate.timeIntervalSince1970, accuracy: 0.001)
     }
 
+    func testHistoryWithoutServerTimestampUsesCurrentSyntheticTimeInsteadOfEpoch() {
+        let service = makeService()
+        let threadID = "thread-\(UUID().uuidString)"
+        let turnID = "turn-\(UUID().uuidString)"
+        let beforeDecode = Date()
+
+        let history = service.decodeMessagesFromThreadRead(
+            threadId: threadID,
+            threadObject: [
+                "turns": .array([
+                    .object([
+                        "id": .string(turnID),
+                        "items": .array([
+                            .object([
+                                "id": .string("assistant-item"),
+                                "type": .string("assistantMessage"),
+                                "message": .string("Hello from desktop"),
+                            ]),
+                        ]),
+                    ]),
+                ]),
+            ]
+        )
+
+        XCTAssertEqual(history.count, 1)
+        XCTAssertGreaterThanOrEqual(history[0].createdAt.timeIntervalSince1970, beforeDecode.timeIntervalSince1970)
+        XCTAssertTrue(history[0].usesSyntheticTimestamp)
+    }
+
+    func testSyntheticHistoryTimestampDoesNotKeepOverwritingExistingMessageTime() {
+        let service = makeService()
+        let threadID = "thread-\(UUID().uuidString)"
+        let turnID = "turn-\(UUID().uuidString)"
+        let localDate = Date(timeIntervalSince1970: 1_720_000_000)
+        let syntheticDate = Date()
+
+        let existing = [
+            CodexMessage(
+                threadId: threadID,
+                role: .assistant,
+                text: "Hello",
+                createdAt: localDate,
+                turnId: turnID,
+                itemId: "assistant-item",
+                isStreaming: false
+            ),
+        ]
+        let history = [
+            CodexMessage(
+                threadId: threadID,
+                role: .assistant,
+                text: "Hello",
+                createdAt: syntheticDate,
+                turnId: turnID,
+                itemId: "assistant-item",
+                isStreaming: false,
+                usesSyntheticTimestamp: true
+            ),
+        ]
+
+        let merged = service.mergeHistoryMessages(existing, history)
+
+        XCTAssertEqual(merged.count, 1)
+        XCTAssertEqual(merged[0].createdAt.timeIntervalSince1970, localDate.timeIntervalSince1970, accuracy: 0.001)
+    }
+
     func testMergeHistoryMessagesReplacesOptimisticCreatedAtWithTrustworthyServerTimestamp() {
         let service = makeService()
         let threadID = "thread-\(UUID().uuidString)"
