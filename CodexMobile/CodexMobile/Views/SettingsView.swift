@@ -1428,25 +1428,6 @@ private struct SettingsAboutCard: View {
 
             Button {
                 HapticFeedback.shared.triggerImpactFeedback(style: .light)
-                if let url = URL(string: "https://x.com/emanueledpt") {
-                    UIApplication.shared.open(url)
-                }
-            } label: {
-                settingsAccessoryRow(
-                    title: "Chat & Support",
-                    leading: {
-                        Image("x-icon")
-                            .renderingMode(.template)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 14, height: 14)
-                    }
-                )
-            }
-            .buttonStyle(.plain)
-
-            Button {
-                HapticFeedback.shared.triggerImpactFeedback(style: .light)
                 UIApplication.shared.open(AppEnvironment.privacyPolicyURL)
             } label: {
                 settingsAccessoryRow(

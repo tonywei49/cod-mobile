@@ -11,7 +11,6 @@
 "Camera access needed" = "需要相機權限";
 "Cancel" = "取消";
 "Changes apply to the app interface. Codex replies, terminal output, and repository content keep their original language." = "這個設定只會改變 App 介面語言。Codex 回覆、終端輸出和倉庫內容會保留原本語言。";
-"Chat & Support" = "聊天與支援";
 "Chat Deleted" = "對話已刪除";
 "ChatGPT voice mode" = "ChatGPT 語音模式";
 "Chats are End-to-end encrypted between your iPhone and Mac. The relay only sees ciphertext and connection metadata after the secure handshake completes." = "對話會在你的 iPhone 和 Mac 之間端到端加密。安全握手完成後，relay 只能看到密文和連線中繼資料。";

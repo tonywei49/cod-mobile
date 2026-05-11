@@ -11,7 +11,7 @@ enum AppEnvironment {
     private static let revenueCatPublicAPIKeyInfoPlistKey = "REVENUECAT_PUBLIC_API_KEY"
     private static let revenueCatEntitlementNameInfoPlistKey = "REVENUECAT_ENTITLEMENT_NAME"
     private static let revenueCatDefaultOfferingIDInfoPlistKey = "REVENUECAT_DEFAULT_OFFERING_ID"
-    private static let supportEmailAddress = "emandipietro@gmail.com"
+    private static let supportEmailAddress = "tonywei49@gmail.com"
 
     // Open-source builds should provide an explicit relay instead of silently
     // pointing at a hosted service the user does not control.
@@ -42,10 +42,10 @@ enum AppEnvironment {
     // Legal links shown in the paywall footer and Settings.
     // Keep these pointed at a public source-of-truth until the website serves dedicated legal routes.
     static let privacyPolicyURL = URL(
-        string: "https://github.com/Emanuele-web04/remodex/blob/main/Legal/PRIVACY_POLICY.md"
+        string: "https://github.com/tonywei49/cod-mobile/blob/main/Legal/PRIVACY_POLICY.md"
     )!
     static let termsOfUseURL = URL(
-        string: "https://github.com/Emanuele-web04/remodex/blob/main/Legal/TERMS_OF_USE.md"
+        string: "https://github.com/tonywei49/cod-mobile/blob/main/Legal/TERMS_OF_USE.md"
     )!
 
     // Powers in-app feedback actions so every entry point targets the same inbox.
