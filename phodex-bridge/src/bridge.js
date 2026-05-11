@@ -44,6 +44,7 @@ const { createRolloutLiveMirrorController } = require("./rollout-live-mirror");
 const {
   createDesktopIpcActionFollower,
 } = require("./desktop-ipc-action-follower");
+const { syncPhoneAuthoredDesktopSessionIndex } = require("./codex-desktop-session-index");
 const { version: bridgePackageVersion = "" } = require("../package.json");
 const {
   MINIMUM_SUPPORTED_IOS_APP_VERSION,
@@ -560,6 +561,7 @@ function startBridge({
       return;
     }
     desktopRefresher.handleInbound(rawMessage);
+    syncPhoneAuthoredDesktopSessionIndex(rawMessage);
     rolloutLiveMirror?.observeInbound(rawMessage);
     if (desktopIpcActionFollower?.observeInbound(rawMessage)) {
       return;
