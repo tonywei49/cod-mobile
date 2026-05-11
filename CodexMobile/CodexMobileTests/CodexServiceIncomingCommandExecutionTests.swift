@@ -319,10 +319,10 @@ final class CodexServiceIncomingCommandExecutionTests: XCTestCase {
                 role: .assistant,
                 text: "Hello",
                 createdAt: syntheticDate,
+                usesSyntheticTimestamp: true,
                 turnId: turnID,
                 itemId: "assistant-item",
-                isStreaming: false,
-                usesSyntheticTimestamp: true
+                isStreaming: false
             ),
         ]
 

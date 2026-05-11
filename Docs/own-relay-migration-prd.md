@@ -164,10 +164,12 @@ node ./bin/remodex.js status --json
 只有在运行链路验证成功后，才给自己的 iOS build 加默认 relay：
 
 ```xcconfig
-PHODEX_DEFAULT_RELAY_URL = wss://owner-relay.example.com/relay
+PHODEX_DEFAULT_RELAY_URL = wss:/$()/owner-relay.example.com/relay
 ```
 
 这个配置应该放在 `CodexMobile/BuildSupport/PrivateOverrides.xcconfig`，不要写进公开默认配置。
+
+注意：`.xcconfig` 里不能直接写 `wss://...`，因为 `//` 可能被 Xcode 当成注释开头。私有配置要用 `wss:/$()/...` 这种写法，Xcode 最终会展开成正常的 `wss://...`。
 
 ## Relay 搭建方案
 
@@ -384,6 +386,59 @@ ssh <server-user>@<server-host> \
 - 记录准确的自有运行命令。
 - 只给改过的配置行为补测试。
 
+#### iOS 私有默认 Relay
+
+iOS 的公开默认配置必须继续保持为空，真实自有 relay 只写在本机忽略文件：
+
+```text
+CodexMobile/BuildSupport/PrivateOverrides.xcconfig
+```
+
+本机开发版示例：
+
+```xcconfig
+PHODEX_DEFAULT_RELAY_URL = wss:/$()/codex.gotradetalk.com/relay
+```
+
+公开仓库只保留：
+
+- `CodexMobile/BuildSupport/Base.xcconfig`：默认空值。
+- `CodexMobile/BuildSupport/PrivateOverrides.xcconfig.example`：示例文件。
+- `CodexMobile/BuildSupport/CodexMobile-Info.plist`：把 build setting 注入 Info.plist。
+- `AppEnvironment.swift`：从 Info.plist 读取默认 relay。
+
+这样做的目的：
+
+- 开源仓库不暴露我们自己的域名和部署信息。
+- 私有开发包不用每次扫码都重新指定 relay。
+- 如果别人 fork 这个仓库，不会误连到我们的服务。
+
+#### Bridge 私有默认 Relay
+
+bridge 也不能把真实 relay 写进源码默认值。
+
+可选的私有 npm 包构建方式：
+
+```bash
+cd phodex-bridge
+REMODEX_PACKAGE_DEFAULT_RELAY_URL="wss://codex.gotradetalk.com/relay" npm pack
+```
+
+这会通过 `scripts/prepare-private-defaults.js` 在打包前生成私有默认配置，并通过 `scripts/cleanup-private-defaults.js` 在打包后清理。`src/private-defaults.json` 不能提交进公开仓库。
+
+如果只是本机运行，优先继续使用：
+
+```bash
+REMODEX_RELAY="wss://codex.gotradetalk.com/relay" remodex up
+```
+
+验收重点：
+
+- 公开源码里搜索不到真实 relay 域名。
+- 本机 iOS Debug build 能读到 `PrivateOverrides.xcconfig` 的默认 relay。
+- 私有 npm 包或本机 daemon 能明确指向自有 relay。
+- 没有任何作者 relay 的隐藏 fallback。
+
 ### Phase 3：商用包装
 
 只有 relay 功能验证成功后再做：
@@ -393,6 +448,29 @@ ssh <server-user>@<server-host> \
 - 替换 support email、legal links、privacy policy、terms。
 - 替换 RevenueCat 配置，或者先关闭第一版私有构建里的订阅门槛。
 - 检查 OpenAI / Codex 相关文案，不能让用户误以为这是 OpenAI 官方产品。
+
+#### 付费墙和内部测试包边界
+
+当前代码的付费墙集中在：
+
+- `CodexMobile/CodexMobile/Services/Payments/SubscriptionService.swift`
+- `CodexMobile/CodexMobile/ContentView.swift`
+- `CodexMobile/CodexMobile/Views/Payments/SubscriptionGateView.swift`
+- `CodexMobile/CodexMobile/Views/Payments/RevenueCatPaywallView.swift`
+- `CodexMobile/CodexMobile/Views/Turn/TurnViewModel.swift`
+
+当前 `DEBUG` 构建已经默认放行 `hasAppAccess`。如果真机仍看到 `Remodex Pro Required`，大概率是安装了 Release、TestFlight 或 App Store 类型的包，不是 Xcode Debug 包。
+
+Phase 3 不建议偷偷绕过 Release 付费墙。正确做法是二选一：
+
+- 内部测试包：增加明确的 `PRIVATE_DEV_BUILD` 或独立 build configuration，只给自用包关闭订阅门槛。
+- 商用包：替换成自己的 RevenueCat 项目、entitlement、商品、隐私政策、服务条款和品牌文案。
+
+不能做的事：
+
+- 不要在公开 Release 里静默绕过原作者 RevenueCat。
+- 不要继续使用原作者的 RevenueCat key、entitlement 或商品。
+- 不要把“开发自用绕过”和“商用发行策略”混在一起。
 
 ## 测试要求
 
@@ -459,7 +537,9 @@ remodex up
 
 - `phodex-bridge` 相关 Node 测试已覆盖 session index 同步和 bridge 行为。
 - iOS App target 的 Debug build 需要保持通过。
-- 当前测试 target 里存在旧的 `TurnViewModelQueueTests.swift` 编译问题：两个 `try XCTUnwrap` 未处理错误会挡住单测运行。这个问题不是本次同步优化引入，但在进入商用包装前要单独修掉，否则无法把 iOS 单测作为稳定回归门槛。
+- iOS 测试 target 的 Swift 编译问题已修掉，`xcodebuild build-for-testing` 可以通过。
+- 当前剩余问题是旧单测断言仍假设旧 RPC 顺序，例如直接期待 `turn/start` 或 `thread/read`，但现在真实流程会先出现 `thread/turns/list`、`thread/resume`、`workspace/checkpointCapture`、`workspace/checkpointCopy` 等请求。
+- 这个问题不应该通过回退生产流程来隐藏。进入商用包装前，需要单独整理测试 helper，让测试显式处理新同步流程和 checkpoint 流程，再把 iOS 单测恢复为稳定回归门槛。
 
 ## 风险
 
