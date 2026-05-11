@@ -486,6 +486,180 @@ Phase 3 不建议偷偷绕过 Release 付费墙。正确做法是二选一：
 - iOS 入口页、侧边栏和空状态先显示 `Gogodex`。
 - 图标、完整文案、legal links、付费墙品牌仍属于 Phase 3，不在这一步混改。
 
+## Phase 3A：免费 TestFlight 发布计划
+
+目标不是直接上架 App Store，而是先产出一个可上传 App Store Connect、可给自己和少量测试者安装的 TestFlight 包。
+
+这一步的成功标准：
+
+- Release 包显示名统一为 `Gogodex`。
+- Release bundle id 改成自有 bundle id，例如 `com.gotradetalk.gogodex`。
+- Release 不再使用原作者 `com.emanueledipietro.Remodex`。
+- App icon 使用自有图标，不能继续使用原 Remodex 图标。
+- 权限说明、Settings、onboarding、pairing、paywall、错误提示中的主要可见文案使用 `Gogodex`。
+- Legal links 指向自有公开页面或自有 GitHub 仓库中的 Privacy Policy / Terms。
+- Support email 指向自有邮箱。
+- 自有 relay / bridge / iPhone App 仍能完成配对、发送消息、流式返回和 trusted reconnect。
+- TestFlight 包不使用原作者 RevenueCat 项目、商品或 entitlement。
+
+### Phase 3A-1：Release 商用配置
+
+需要修改：
+
+- `CodexMobile/CodexMobile.xcodeproj/project.pbxproj`
+- `CodexMobile/BuildSupport/CodexMobile-Info.plist`
+- App icon asset catalog
+- 可能的 entitlements / signing 设置
+
+执行内容：
+
+- Release `APP_DISPLAY_NAME` 从 `Remodex` 改成 `Gogodex`。
+- Release `INFOPLIST_KEY_CFBundleDisplayName` 改成 `Gogodex`。
+- Release `PRODUCT_BUNDLE_IDENTIFIER` 改成自有 bundle id。
+- Debug bundle id 可以继续保留开发用 id，避免覆盖手机上已有 Debug 包。
+- 确认 Release signing 使用自己的 Apple Developer Team。
+- 权限文案用 `$(APP_DISPLAY_NAME)` 或明确的 `Gogodex`，不要残留 `CodexMobile` / `Remodex`。
+
+验收：
+
+```bash
+xcodebuild build \
+  -project CodexMobile/CodexMobile.xcodeproj \
+  -scheme CodexMobile \
+  -configuration Release \
+  -destination 'generic/platform=iOS'
+```
+
+Release build 必须通过。
+
+### Phase 3A-2：免费 TestFlight 付费策略
+
+第一版建议先做免费 TestFlight，不要同时处理付费上线。
+
+原因：
+
+- RevenueCat、App Store IAP、商品审核、entitlement、退款/恢复购买和隐私披露会明显拉长周期。
+- 当前核心风险是连接稳定度、同步体验、上架包装，不是收费。
+- 用免费 TestFlight 可以先验证真实用户安装、配对、断线、后台恢复和长时间连接。
+
+正确做法：
+
+- 增加明确的 `PRIVATE_TESTFLIGHT_BUILD` 或独立 build configuration。
+- 只在这个内部测试包里关闭订阅门槛。
+- UI 可以显示“免费测试版”或直接隐藏 Pro 区块。
+- 不要在公开 Release 里静默绕过原作者 RevenueCat。
+- 不要继续使用原作者 RevenueCat key、entitlement 或商品。
+
+如果决定直接做收费版，则本阶段必须改为：
+
+- 建立自己的 RevenueCat project。
+- 建立自己的 App Store IAP 商品。
+- 配置自己的 entitlement。
+- 更新 `REVENUECAT_PUBLIC_API_KEY`、`REVENUECAT_ENTITLEMENT_NAME`、`REVENUECAT_DEFAULT_OFFERING_ID`。
+- 跑通购买、恢复购买、无网络、已订阅、未订阅状态。
+
+### Phase 3A-3：Legal 和 App Store 基础材料
+
+TestFlight 前必须具备：
+
+- Privacy Policy。
+- Terms of Use。
+- Support email。
+- 公开源码来源说明。
+- 明确说明本 App 不是 OpenAI 官方产品。
+- 明确说明需要用户自己的电脑运行 Codex CLI / bridge。
+- 明确说明 relay 用于中继连接，消息内容按当前实现端到端加密。
+
+正式 App Store 前还需要：
+
+- App Store 名称。
+- Subtitle。
+- Description。
+- Keywords。
+- 截图。
+- App Review notes。
+- Export compliance / encryption 说明。
+- 隐私问卷。
+- 年龄分级。
+
+### Phase 3A-4：TestFlight 上传
+
+流程：
+
+1. 在 Apple Developer / App Store Connect 建立自有 bundle id 和 App 记录。
+2. Xcode 选择 Release scheme archive。
+3. 上传 archive 到 App Store Connect。
+4. 填 TestFlight 测试说明。
+5. 先只邀请自己测试。
+6. 第一轮通过后再邀请少量外部测试者。
+
+TestFlight 测试说明必须写清楚：
+
+- 需要在 Mac 上安装并启动 Gogodex bridge。
+- 需要能访问自有 relay。
+- 桌面 Codex UI 实时同步是 best-effort，不是当前承诺能力。
+- 如果 offline，需要重新打开 App 或重新扫码的条件。
+
+## Phase 3B：稳定度测试计划
+
+这一步决定是否能从 TestFlight 进入正式 App Store。
+
+必须测试：
+
+- 新安装 App 后首次扫码配对。
+- App 重启后 trusted reconnect。
+- iPhone 锁屏 5 分钟后回前台。
+- App 切后台 5 分钟后回前台。
+- Mac bridge 重启。
+- Mac 睡眠 / 唤醒。
+- relay 服务重启。
+- relay 服务器短暂断网后恢复。
+- 手机连续发送 5-10 条消息。
+- 桌面端发送消息后，手机端是否能在合理时间内刷新。
+- 图片选择和拍照附件。
+- 语音输入。
+- Git 基础操作入口。
+- 长 session 和旧 session。
+- 新建 session。
+- 配对码过期后的重新扫码。
+
+记录方式：
+
+- 每个测试项记录 `通过 / 失败 / 不稳定 / 不适用`。
+- 失败项必须记录复现步骤、日志位置和影响范围。
+- 不稳定项不能写成通过。
+- 如果是 Codex.app 上游限制，必须明确标成上游限制，不能用 UI 文案伪装成已支持。
+
+退出标准：
+
+- 配对、发送、回复、重连是稳定通过。
+- bridge / relay 重启后可以恢复。
+- 不存在会导致用户无法进入 App 的 Release 级阻塞。
+- 付费墙策略明确，不能弹出原作者 RevenueCat 付费页。
+- 主要可见 UI 不再残留 Remodex 品牌。
+
+## Phase 3C：正式 App Store 发布计划
+
+只有 Phase 3A 和 Phase 3B 完成后再做。
+
+正式发布前必须确认：
+
+- 是否收费。
+- 如果收费，RevenueCat / IAP 全链路已经替换成自己的。
+- 如果免费，所有 Pro / Paywall 文案已经下线或明确改成未来计划。
+- App Store 文案不暗示 OpenAI 官方归属。
+- 不承诺 Codex Desktop UI 实时双向同步。
+- 公开说明需要用户自己的电脑运行 Codex CLI。
+- relay、bridge、App 的隐私边界写清楚。
+
+正式上架不能做：
+
+- 使用原作者 bundle id。
+- 使用原作者品牌、图标或商标。
+- 使用原作者 RevenueCat。
+- 宣传未稳定的桌面端实时同步。
+- 隐藏 relay 失败并偷偷 fallback 到第三方服务。
+
 ## 测试要求
 
 ### Relay 测试
