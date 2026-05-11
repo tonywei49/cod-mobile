@@ -108,7 +108,7 @@ struct HomeEmptyStateView<AuthSection: View, Footer: View>: View {
                 .padding(.bottom, 28)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .navigationTitle("Remodex")
+        .navigationTitle("Gogodex")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             if connectionPhase == .connecting {

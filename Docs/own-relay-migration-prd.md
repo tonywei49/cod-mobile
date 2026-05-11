@@ -475,6 +475,17 @@ Phase 3 不建议偷偷绕过 Release 付费墙。正确做法是二选一：
 - 不要继续使用原作者的 RevenueCat key、entitlement 或商品。
 - 不要把“开发自用绕过”和“商用发行策略”混在一起。
 
+#### 内部测试包命名
+
+当前内部 Debug 包先使用 `Gogodex` 作为手机桌面显示名和主要入口品牌。Release 配置暂时保留原显示名，避免在还没完成 bundle id、legal、RevenueCat、App Store metadata 前误认为已经完成商用 rebranding。
+
+当前边界：
+
+- Debug `APP_DISPLAY_NAME = Gogodex`。
+- Release `APP_DISPLAY_NAME = Remodex`，等待 Phase 3 商用包装统一处理。
+- iOS 入口页、侧边栏和空状态先显示 `Gogodex`。
+- 图标、完整文案、legal links、付费墙品牌仍属于 Phase 3，不在这一步混改。
+
 ## 测试要求
 
 ### Relay 测试
@@ -556,12 +567,13 @@ LAN-only URL 在 iPhone 上可能不稳定，即使 Mac 自己能访问也不代
 
 ### 桌面端不同步问题
 
-Codex.app 目前不会自动监听外部 `codex app-server` 写入的 session 文件。手机端消息能写入 `~/.codex/sessions` 不代表桌面 UI 会立刻显示。
+Codex.app 目前不会稳定监听外部 `codex app-server` 写入的 session 文件。手机端消息能写入 `~/.codex/sessions`，也能进入当前 Codex session 并返回手机，但这不代表桌面 UI 会立刻显示同一条手机消息。
 
 处理方式：
 
 - 第一阶段必须用 `REMODEX_REFRESH_ENABLED=true` 和 `REMODEX_REFRESH_MODE=completion` 启动 bridge。
 - 这个刷新是 deep-link/AppleScript workaround，不是真正的实时双订阅。
+- 当前桌面 UI 同步只能标记为实验性 best-effort；Phase 1 不再把“Codex Desktop UI 实时显示手机消息”作为硬退出门槛。
 - 手机端发起消息时，不应该在 `turn/start` 或 rollout 中途频繁刷新桌面，避免桌面端后续输入收不完整。
 - 如果刷新失败，要明确显示或记录错误，不要假装桌面端已经实时同步。
 - 长期产品化要把“手机消息同步到桌面端 UI”作为明确功能点继续做，不能只靠用户手动重开 Codex.app。
@@ -597,4 +609,4 @@ Apache 2.0 允许商用代码使用，但 Remodex 名称和品牌不授权给 fo
 
 ## Phase 1 退出门槛
 
-在真实 iPhone 通过自有 relay 完整跑通 Phase 1 之前，不开始 rebranding、订阅改造或 push notification 工作。
+Phase 1 的退出标准调整为：真实 iPhone 通过自有 relay 能稳定配对、发送消息、收到 Codex 回复、写入本机 session 文件，并且 bridge / relay 能自启动恢复。Codex Desktop UI 实时显示手机消息只作为实验性 best-effort，不再阻塞内部测试包固化。
