@@ -283,7 +283,7 @@ struct AboutRemodexView: View {
             calloutCard(
                 icon: "macbook.and.iphone",
                 color: .blue,
-                text: "The desktop app doesn't live-reload external writes. Use the desktop app handoff button in Remodex to continue the current thread on your computer."
+                text: "The desktop app doesn't live-reload external writes. Use the desktop app handoff button in Gogodex to continue the current thread on your computer."
             )
         }
     }

@@ -225,7 +225,7 @@ extension CodexService {
     func secureWireText(for plaintext: String) throws -> String {
         guard var secureSession else {
             throw CodexSecureTransportError.invalidHandshake(
-                "The secure Remodex session is not ready yet. Try reconnecting."
+                "The secure Gogodex session is not ready yet. Try reconnecting."
             )
         }
 
@@ -251,7 +251,7 @@ extension CodexService {
         self.secureSession = secureSession
         let data = try JSONEncoder().encode(envelope)
         guard let text = String(data: data, encoding: .utf8) else {
-            throw CodexSecureTransportError.invalidHandshake("Unable to encode the secure Remodex envelope.")
+            throw CodexSecureTransportError.invalidHandshake("Unable to encode the secure Gogodex envelope.")
         }
         return text
     }
@@ -497,7 +497,7 @@ private extension CodexService {
     func sendWireControlMessage<Value: Encodable>(_ value: Value) async throws {
         let data = try JSONEncoder().encode(value)
         guard let text = String(data: data, encoding: .utf8) else {
-            throw CodexSecureTransportError.invalidHandshake("Unable to encode the secure Remodex control payload.")
+            throw CodexSecureTransportError.invalidHandshake("Unable to encode the secure Gogodex control payload.")
         }
         try await sendRawText(text)
     }
@@ -516,7 +516,7 @@ private extension CodexService {
         }
 
         let waiterID = UUID()
-        let timeoutMessage = "Timed out waiting for the secure Remodex \(kind) message."
+        let timeoutMessage = "Timed out waiting for the secure Gogodex \(kind) message."
 
         return try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<String, Error>) in
             pendingSecureControlContinuations[kind, default: []].append(
@@ -606,7 +606,7 @@ private extension CodexService {
               envelope.keyEpoch == secureSession.keyEpoch,
               envelope.sender == "mac",
               envelope.counter > secureSession.lastInboundCounter else {
-            lastErrorMessage = "The secure Remodex payload could not be verified."
+            lastErrorMessage = "The secure Gogodex payload could not be verified."
             secureConnectionState = .rePairRequired
             return
         }

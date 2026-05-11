@@ -58,7 +58,7 @@ private extension CodexService {
     var threadForkBridgeUpdatePrompt: CodexBridgeUpdatePrompt {
         CodexBridgeUpdatePrompt(
             title: "Update Gogodex on your computer to use /fork",
-            message: "This computer bridge does not support native conversation forks yet. Update the Remodex npm package to use /fork and worktree fork flows.",
+            message: "This computer bridge does not support native conversation forks yet. Update the Gogodex npm package to use /fork and worktree fork flows.",
             command: "npm install -g gogodex@latest"
         )
     }

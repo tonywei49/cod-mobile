@@ -201,7 +201,7 @@ enum CodexSecureTransportError: LocalizedError {
              .timedOut(let message):
             return message
         case .decryptFailed:
-            return "Unable to decrypt the secure Remodex payload."
+            return "Unable to decrypt the secure Gogodex payload."
         }
     }
 }

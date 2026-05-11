@@ -213,7 +213,7 @@ struct SidebarView: View {
                 projectGroupPendingDeletion = nil
             }
         } message: {
-            Text("Chats for this project will be deleted only from Remodex on this phone. Nothing is removed from your computer or Codex observer.")
+            Text("Chats for this project will be deleted only from Gogodex on this phone. Nothing is removed from your computer or Codex observer.")
         }
         .alert(
             "Remove \"\(threadPendingDeletion?.displayTitle ?? "conversation")\" from this phone?",
@@ -235,7 +235,7 @@ struct SidebarView: View {
                 threadPendingDeletion = nil
             }
         } message: {
-            Text("This only removes the chat from Remodex on this phone. Nothing is removed from your computer or Codex observer.")
+            Text("This only removes the chat from Gogodex on this phone. Nothing is removed from your computer or Codex observer.")
         }
         .alert(
             "Action failed",

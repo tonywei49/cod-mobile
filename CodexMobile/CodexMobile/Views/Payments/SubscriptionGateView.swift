@@ -22,7 +22,7 @@ private let subscriptionGateFeatures: [SubscriptionGateFeature] = [
     .init(id: 4, icon: "point.3.connected.trianglepath.dotted", title: "Subagents", subtitle: "Delegate complex tasks to specialized sub-agents"),
     .init(id: 5, icon: "at", title: "$skills /cmds @files", subtitle: "Invoke skills, run slash commands, and mention files inline"),
     .init(id: 6, icon: "server.rack", title: "Hosted relay", subtitle: "You are paying for the product and the hosted path"),
-    .init(id: 7, icon: "heart", title: "Support development", subtitle: "Help keep Remodex independent and open source"),
+    .init(id: 7, icon: "heart", title: "Support development", subtitle: "Help keep Gogodex independent and open source"),
 ]
 
 struct SubscriptionGatePreviewPlan: Identifiable {
@@ -494,7 +494,7 @@ struct SubscriptionBootstrapFailureView: View {
                             .foregroundStyle(primaryTextColor)
                             .multilineTextAlignment(.center)
 
-                        Text("Remodex couldn’t confirm your Pro access yet. Check your connection, retry, or restore your App Store purchases.")
+                        Text("Gogodex couldn’t confirm your Pro access yet. Check your connection, retry, or restore your App Store purchases.")
                             .font(AppFont.caption())
                             .foregroundStyle(secondaryTextColor)
                             .multilineTextAlignment(.center)
@@ -592,7 +592,7 @@ private struct SubscriptionMacLoginInfoSheet: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
-                    Text("Remodex connects to Codex running on your computer. Buying Pro unlocks the app, but you still need Codex already logged in on that computer.")
+                    Text("Gogodex connects to Codex running on your computer. Buying Pro unlocks the app, but you still need Codex already logged in on that computer.")
                         .font(AppFont.body())
 
                     infoStep(

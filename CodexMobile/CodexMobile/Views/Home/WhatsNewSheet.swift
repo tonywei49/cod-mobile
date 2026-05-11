@@ -7,7 +7,7 @@
 import SwiftUI
 
 private let whatsNewItems: [String] = [
-    "New Remodex CLI v1.5.0",
+    "New Gogodex CLI v1.5.0",
     "New message bubble colors",
     "Image Gen is now available",
     "Plugin mentions in the composer",
@@ -57,7 +57,7 @@ struct WhatsNewSheet: View {
             Text("What's New")
                 .font(AppFont.title2(weight: .bold))
 
-            Text("Remodex \(version)")
+            Text("Gogodex \(version)")
                 .font(AppFont.mono(.subheadline))
                 .foregroundStyle(.secondary)
 

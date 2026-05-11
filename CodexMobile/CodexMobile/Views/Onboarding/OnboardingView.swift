@@ -32,7 +32,7 @@ struct OnboardingView: View {
                         stepNumber: 1,
                         icon: "terminal",
                         title: "Install Codex CLI",
-                        description: "The AI coding agent that lives in your terminal. Remodex connects to it from your iPhone.",
+                        description: "The AI coding agent that lives in your terminal. Gogodex connects to it from your iPhone.",
                         command: codexInstallCommand
                     )
                     .tag(2)
@@ -43,7 +43,7 @@ struct OnboardingView: View {
                         title: "Install the Bridge",
                         description: "A lightweight relay that securely connects your Mac to your iPhone.",
                         command: "npm install -g gogodex@latest",
-                        commandCaption: "Remodex can keep your Mac awake with macOS caffeinate while the bridge is running, but it starts disabled by default. You can enable it later in Settings if you want."
+                        commandCaption: "Gogodex can keep your Mac awake with macOS caffeinate while the bridge is running, but it starts disabled by default. You can enable it later in Settings if you want."
                     )
                     .tag(3)
 
@@ -68,7 +68,7 @@ struct OnboardingView: View {
                 advanceToNextPage()
             }
         } message: {
-            Text("Copy and paste the Codex install command on your computer before moving on. Remodex will not work until Codex CLI is installed and available in your PATH.")
+            Text("Copy and paste the Codex install command on your computer before moving on. Gogodex will not work until Codex CLI is installed and available in your PATH.")
         }
     }
 

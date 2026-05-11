@@ -63,7 +63,7 @@ enum AppEnvironment {
         components.scheme = "mailto"
         components.path = supportEmailAddress
         var queryItems = [
-            URLQueryItem(name: "subject", value: "Share Feedback on Remodex with the Developer")
+            URLQueryItem(name: "subject", value: "Share Feedback on Gogodex with the Developer")
         ]
         if let body = feedbackBody(
             errorMessage: errorMessage,
@@ -108,7 +108,7 @@ private extension AppEnvironment {
         }
 
         var lines = [
-            "I hit this Remodex error:",
+            "I hit this Gogodex error:",
             "",
             "Error:",
             sanitizedFeedbackError(errorMessage),
@@ -125,7 +125,7 @@ private extension AppEnvironment {
         }
         lines.append("- App: \(appVersionSummary())")
         if let cliVersion = sanitizedCLIVersion(cliVersion) {
-            lines.append("- Remodex CLI: \(cliVersion)")
+            lines.append("- Gogodex CLI: \(cliVersion)")
         }
         lines.append("")
         lines.append("Notes:")

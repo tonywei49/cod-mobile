@@ -112,7 +112,7 @@ struct OnboardingStepPage: View {
             stepNumber: 1,
             icon: "terminal",
             title: "Install Codex CLI",
-            description: "The AI coding agent that lives in your terminal. Remodex connects to it from your iPhone.",
+            description: "The AI coding agent that lives in your terminal. Gogodex connects to it from your iPhone.",
             command: "npm install -g @openai/codex@latest"
         )
     }
@@ -128,7 +128,7 @@ struct OnboardingStepPage: View {
             title: "Install the Bridge",
             description: "A lightweight relay that securely connects your Mac to your iPhone.",
             command: "npm install -g gogodex@latest",
-            commandCaption: "Remodex can keep your Mac awake with macOS caffeinate while the bridge is running, but it starts disabled by default. You can enable it later in Settings if you want."
+            commandCaption: "Gogodex can keep your Mac awake with macOS caffeinate while the bridge is running, but it starts disabled by default. You can enable it later in Settings if you want."
         )
     }
     .preferredColorScheme(.dark)

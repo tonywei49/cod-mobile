@@ -42,7 +42,7 @@ enum TurnComposerSlashCommand: String, Identifiable, Equatable {
         case .compact:
             return "Summarize older context to keep this thread lean"
         case .feedback:
-            return "Share feedback on Remodex with the developer"
+            return "Share feedback on Gogodex with the developer"
         case .fork:
             return "Fork this thread into local or a new worktree"
         case .status:
