@@ -90,6 +90,129 @@ Disclosure:
 
 Gogodex is an independent companion app. It is not made by, endorsed by, or affiliated with OpenAI. OpenAI, Codex, and related marks belong to their respective owners.
 
+## App Store Connect 可复制字段
+
+### App 名称
+
+Gogodex
+
+### Subtitle
+
+Mobile companion for Codex
+
+### Promotional Text
+
+Control your Mac-based Codex workflow from your iPhone with secure pairing, streaming responses, and trusted reconnect.
+
+### Description
+
+Gogodex lets you control your Mac-based Codex workflow from your iPhone.
+
+Pair your phone with your Mac, send prompts from your iPhone, and watch Codex responses stream back while the actual coding runtime stays on your computer.
+
+Key features:
+
+- Secure QR-code pairing with your Mac
+- Send prompts to your Mac-based Codex runtime
+- View streaming responses on iPhone
+- Continue working from your phone when you are away from the keyboard
+- Use photo attachments and voice input when available
+- Review Codex actions and permission prompts from your mobile device
+- Reconnect to a trusted Mac after pairing
+
+Gogodex is built for users who already use Codex on their own machine and want a mobile control surface. It does not run Codex for you in the cloud.
+
+Requirements:
+
+- A Mac with a working Codex setup
+- Gogodex bridge running on the Mac
+- Network access between iPhone, relay, and Mac
+
+Disclosure:
+
+Gogodex is an independent companion app. It is not made by, endorsed by, or affiliated with OpenAI. OpenAI, Codex, and related marks belong to their respective owners.
+
+### Keywords
+
+codex,ai,coding,developer,git,terminal,mac,workflow,assistant,remote
+
+### Support URL
+
+https://codex.gotradetalk.com/support
+
+### Privacy Policy URL
+
+https://codex.gotradetalk.com/privacy
+
+### Terms of Use URL
+
+https://codex.gotradetalk.com/terms
+
+### Marketing URL
+
+可以先留空。若 App Store Connect 强制填写，可暂用：
+
+https://codex.gotradetalk.com/support
+
+### Copyright
+
+2026 Yu Hung Wei
+
+### App Review Notes
+
+Gogodex is an iOS companion app for controlling a Codex runtime running on the user's own Mac.
+
+The app is not an official OpenAI app and is not affiliated with or endorsed by OpenAI. It requires the tester to run a paired Mac bridge / Codex runtime. The iOS app connects to that Mac through a QR-code pairing flow and an encrypted session. A relay service may be used only as a transport layer so the phone can reach the paired Mac.
+
+Core review flow:
+
+1. Install Gogodex.
+2. On a Mac, start the Gogodex bridge / Codex runtime.
+3. Scan the QR code shown by the Mac bridge.
+4. Send a test prompt from the iPhone.
+5. Confirm that the Codex task runs on the Mac and streams the response back to the iPhone.
+
+This build is free. It does not use RevenueCat, subscriptions, or in-app purchases.
+
+The app may request network access, camera access for QR pairing, microphone access for voice input, and photo access for attachments. These permissions are used only for the related user-triggered features.
+
+Important limitation for review:
+
+The iPhone app does not promise real-time two-way mirroring with the Codex Desktop UI. The phone can send prompts to the paired Codex session and receive streamed results, but immediate visual synchronization inside the desktop Codex UI is currently best-effort and depends on the desktop/runtime behavior.
+
+### Demo Account
+
+不需要账号。Gogodex 不使用 Gogodex 云端账号登录。
+
+如果 App Review 需要测试，请使用配对流程连接一台运行 Gogodex bridge 和 Codex runtime 的 Mac。
+
+### Privacy Nutrition Label 填写口径
+
+当前第一版免费 TestFlight / 免费上架版本，不接 RevenueCat、不做广告追踪、不建立 Gogodex 云端聊天历史库。
+
+建议填写原则：
+
+- Data Used to Track You：No。
+- Data Linked to You：一般选 No，除非你后续加入账号、邮箱登录、付费订阅或用户识别。
+- Data Not Linked to You：按真实功能披露网络连接和用户主动输入内容。
+
+建议披露的数据类型：
+
+- User Content：用户主动发送的 prompts、图片附件、语音输入。用途选 App Functionality。
+- Diagnostics：如果使用 Apple 崩溃日志或诊断信息，选 Crash Data / Performance Data。用途选 App Functionality。
+- Identifiers：如果订阅、推送、RevenueCat 或自建账号后续启用，再按实际情况补 Device ID / User ID。当前免费版如果没有这些第三方 SDK 识别逻辑，可以先不选。
+- Usage Data：当前没有广告分析或行为分析 SDK，不建议选。
+- Contact Info：当前没有账号注册，不主动收集邮箱。Support email 是用户主动发邮件，不算 App 内收集。
+- Location：不收集。
+- Contacts：不收集。
+- Financial Info：当前免费版不收集。后续接 App Store IAP 时，由 Apple 处理付款，App 侧按是否接 RevenueCat 再补披露。
+
+加密 / Export Compliance 口径：
+
+- App 使用加密来保护 iPhone 与已配对 Mac 之间的通信。
+- 如果 App Store Connect 问是否使用加密，应按实际情况选择 Yes。
+- 如果只使用系统 TLS / 标准加密以及应用层安全通信，后续需要按 Apple 表单逐项回答，不要选“完全不使用加密”。
+
 ## 隐私 / 非官方声明草稿
 
 Gogodex 的设计原则是 local-first。
