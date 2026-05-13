@@ -607,24 +607,36 @@ TestFlight 测试说明必须写清楚：
 
 这一步决定是否能从 TestFlight 进入正式 App Store。
 
+当前状态（2026-05-13）：
+
+- TestFlight build `1.5 (115)` 已安装到 iPhone。
+- 用户目测确认：主界面 / onboarding、Settings i18n、简体中文补充、Gogodex 品牌替换基本正常。
+- bridge 已切到自有 npm 包 `gogodex@1.5.0`，并保留 `remodex` 兼容命令。
+- 当前 relay 使用 `wss://codex.gotradetalk.com/relay`。
+- 腾讯轻量服务器上的 relay 服务已确认 `active / enabled`，本机健康检查正常。
+- 公网 `https://codex.gotradetalk.com/health` 可访问。
+- relay 服务重启后，Mac bridge 会断开并自动重连，最终状态为 `connected`。
+- WebSocket relay 握手可建立；无效 role / session 会返回预期错误。
+- 观察项：短压测中 `/health` 偶尔出现瞬时失败，bridge 日志也出现过 `heartbeat stalled`，但当前能自动恢复。正式上架前建议继续观察，必要时增加 uptime 监控。
+
 必须测试：
 
-- 新安装 App 后首次扫码配对。
-- App 重启后 trusted reconnect。
-- iPhone 锁屏 5 分钟后回前台。
-- App 切后台 5 分钟后回前台。
-- Mac bridge 重启。
-- Mac 睡眠 / 唤醒。
-- relay 服务重启。
-- relay 服务器短暂断网后恢复。
-- 手机连续发送 5-10 条消息。
-- 桌面端发送消息后，手机端是否能在合理时间内刷新。
-- 图片选择和拍照附件。
-- 语音输入。
-- Git 基础操作入口。
-- 长 session 和旧 session。
-- 新建 session。
-- 配对码过期后的重新扫码。
+- 新安装 App 后首次扫码配对：已通过 TestFlight 版本人工验证。
+- App 重启后 trusted reconnect：已通过基础人工验证，仍需长时间观察。
+- iPhone 锁屏 5 分钟后回前台：待测。
+- App 切后台 5 分钟后回前台：待测。
+- Mac bridge 重启：已通过。
+- Mac 睡眠 / 唤醒：待测。
+- relay 服务重启：已通过，bridge 可自动恢复。
+- relay 服务器短暂断网后恢复：待测。
+- 手机连续发送 5-10 条消息：待测。
+- 桌面端发送消息后，手机端是否能在合理时间内刷新：用户已目测通过当前版本，但仍需长 session 回归。
+- 图片选择和拍照附件：待测。
+- 语音输入：待测。
+- Git 基础操作入口：待测。
+- 长 session 和旧 session：待测。
+- 新建 session：待测。
+- 配对码过期后的重新扫码：已遇到过过期提示，重新生成配对码可恢复；仍需按正式用例复测。
 
 记录方式：
 
