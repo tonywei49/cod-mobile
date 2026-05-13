@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { generateKeyPairSync, sign } from "node:crypto";
-import { internals } from "../src/worker.js";
+import { RelaySession, internals } from "../src/worker.js";
 
 test("normalizes short pairing codes like the Node relay", () => {
   assert.equal(internals.normalizeShortPairingCode(" abcd-2345 "), "ABCD2345");
@@ -58,7 +58,93 @@ test("verifies trusted reconnect Ed25519 signatures", async () => {
   );
 });
 
+test("accepts relay sockets through Durable Object WebSocket hibernation", async () => {
+  const originalWebSocketPair = globalThis.WebSocketPair;
+  const originalWebSocket = globalThis.WebSocket;
+  const originalResponse = globalThis.Response;
+  const acceptedSockets = [];
+
+  globalThis.WebSocket = {
+    OPEN: 1,
+    CONNECTING: 0,
+  };
+  globalThis.WebSocketPair = class FakeWebSocketPair {
+    constructor() {
+      this[0] = new FakeSocket("client");
+      this[1] = new FakeSocket("server");
+    }
+  };
+  globalThis.Response = class FakeResponse {
+    constructor(body, init = {}) {
+      this.body = body;
+      this.status = init.status || 200;
+      this.webSocket = init.webSocket;
+    }
+  };
+
+  try {
+    const session = new RelaySession({
+      acceptWebSocket(ws) {
+        acceptedSockets.push(ws);
+      },
+      getWebSockets() {
+        return [];
+      },
+    }, {});
+
+    const response = await session.fetch(new Request("https://relay/relay/session-1", {
+      headers: {
+        upgrade: "websocket",
+        "x-role": "mac",
+      },
+    }));
+
+    assert.equal(response.status, 101);
+    assert.equal(acceptedSockets.length, 1);
+    assert.equal(acceptedSockets[0].name, "server");
+    assert.equal(acceptedSockets[0].acceptCalls, 0);
+  } finally {
+    globalThis.WebSocketPair = originalWebSocketPair;
+    globalThis.WebSocket = originalWebSocket;
+    globalThis.Response = originalResponse;
+  }
+});
+
 function base64UrlToBase64(value) {
   const base64 = String(value).replaceAll("-", "+").replaceAll("_", "/");
   return base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
+}
+
+class FakeSocket {
+  constructor(name) {
+    this.name = name;
+    this.acceptCalls = 0;
+    this.readyState = WebSocket.OPEN;
+    this.sent = [];
+    this.listeners = new Map();
+  }
+
+  accept() {
+    this.acceptCalls += 1;
+  }
+
+  addEventListener(eventName, listener) {
+    this.listeners.set(eventName, listener);
+  }
+
+  close() {
+    this.readyState = 3;
+  }
+
+  send(message) {
+    this.sent.push(message);
+  }
+
+  serializeAttachment(value) {
+    this.attachment = value;
+  }
+
+  deserializeAttachment() {
+    return this.attachment;
+  }
 }

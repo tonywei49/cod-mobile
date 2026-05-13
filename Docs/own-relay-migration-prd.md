@@ -693,6 +693,7 @@ TestFlight 测试说明必须写清楚：
   - pairing code normalization
   - mac registration normalization
   - trusted reconnect Ed25519 signature verification
+  - Durable Object relay WebSocket 必须使用 `state.acceptWebSocket()`，避免普通 `server.accept()` 让长连接持续占用 duration
 - 已通过本地 Wrangler dry-run。
 - 已通过本地真实 Worker relay 测试：
   - `/health`
@@ -722,6 +723,7 @@ TestFlight 测试说明必须写清楚：
 - iPhone TestFlight 改用 Cloudflare relay 测通。
 - 确认 pairing code、trusted reconnect、bridge 重启、App 重启都正常。
 - 将 `codex.gotradetalk.com` 从 VPS relay 切到 Cloudflare Worker 后，立即复测 `/health`、WebSocket、pairing code 和 bridge reconnect。
+- 部署 hibernatable WebSocket 版本，并复测正式域名双向 WebSocket。当前代码和 dry-run 已通过，但本机 shell 缺少 `CLOUDFLARE_API_TOKEN`，正式 deploy 需要在已登录 Cloudflare token 的终端执行。
 
 正式上架不能做：
 

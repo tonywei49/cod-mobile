@@ -64,6 +64,8 @@ export class RelaySession {
       mobileMessagesRelayed: 0,
       mobileMessagesRejectedDuringMacAbsence: 0,
     };
+    this.restoreHibernatedSockets();
+    this.setAutoResponse();
   }
 
   async fetch(request) {
@@ -95,7 +97,7 @@ export class RelaySession {
 
     const pair = new WebSocketPair();
     const server = pair[1];
-    server.accept();
+    this.state.acceptWebSocket(server);
     this.metrics.acceptedConnections += 1;
     this.clearCleanupTimer();
 
@@ -105,17 +107,64 @@ export class RelaySession {
       this.acceptMobile(server, role);
     }
 
-    server.addEventListener("message", (event) => {
-      void this.handleMessage(server, role, event.data);
-    });
-    server.addEventListener("close", () => {
-      void this.handleClose(server, role);
-    });
-    server.addEventListener("error", () => {
-      void this.handleClose(server, role);
-    });
-
     return new Response(null, { status: 101, webSocket: pair[0] });
+  }
+
+  restoreHibernatedSockets() {
+    if (typeof this.state.getWebSockets !== "function") {
+      return;
+    }
+
+    for (const ws of this.state.getWebSockets()) {
+      const attachment = readSocketAttachment(ws);
+      const role = normalizeRelayRole(attachment?.role);
+      if (!role) {
+        continue;
+      }
+
+      if (attachment?.sessionId && !this.sessionId) {
+        this.sessionId = String(attachment.sessionId);
+      }
+
+      if (role === "mac") {
+        this.mac = ws;
+        this.macRegistration = normalizeMacRegistration(attachment?.macRegistration, this.sessionId);
+      } else if (isRelayMobileRole(role)) {
+        this.clients.add(ws);
+      }
+    }
+  }
+
+  setAutoResponse() {
+    if (
+      typeof this.state.setWebSocketAutoResponse === "function"
+      && typeof WebSocketRequestResponsePair !== "undefined"
+    ) {
+      this.state.setWebSocketAutoResponse(new WebSocketRequestResponsePair("ping", "pong"));
+    }
+  }
+
+  async webSocketMessage(ws, message) {
+    const attachment = readSocketAttachment(ws);
+    const role = normalizeRelayRole(attachment?.role);
+    if (!role) {
+      ws.close(4000, "Missing socket role");
+      return;
+    }
+    if (attachment?.sessionId && !this.sessionId) {
+      this.sessionId = String(attachment.sessionId);
+    }
+    await this.handleMessage(ws, role, message);
+  }
+
+  async webSocketClose(ws) {
+    const attachment = readSocketAttachment(ws);
+    await this.handleClose(ws, normalizeRelayRole(attachment?.role));
+  }
+
+  async webSocketError(ws) {
+    const attachment = readSocketAttachment(ws);
+    await this.handleClose(ws, normalizeRelayRole(attachment?.role));
   }
 
   async acceptMac(ws, headers) {
@@ -137,16 +186,25 @@ export class RelaySession {
     await this.unregisterMacRegistration();
     this.mac = ws;
     this.macRegistration = nextRegistration;
+    writeSocketAttachment(ws, {
+      role: "mac",
+      sessionId: this.sessionId,
+      macRegistration: this.macRegistration,
+    });
     await this.registerMacRegistration();
   }
 
-  acceptMobile(ws) {
+  acceptMobile(ws, role) {
     for (const client of this.clients) {
       if (client.readyState === WebSocket.OPEN || client.readyState === WebSocket.CONNECTING) {
         client.close(CLOSE_CODE_IPHONE_REPLACED, "Replaced by newer mobile connection");
       }
       this.clients.delete(client);
     }
+    writeSocketAttachment(ws, {
+      role,
+      sessionId: this.sessionId,
+    });
     this.clients.add(ws);
   }
 
@@ -241,11 +299,6 @@ export class RelaySession {
     if (this.mac || this.clients.size > 0 || this.cleanupTimer || this.macAbsenceTimer) {
       return;
     }
-    this.cleanupTimer = setTimeout(() => {
-      if (!this.mac && this.clients.size === 0 && !this.macAbsenceTimer) {
-        this.cleanupTimer = null;
-      }
-    }, CLEANUP_DELAY_MS);
   }
 
   clearCleanupTimer() {
@@ -596,6 +649,23 @@ function normalizePositiveInteger(value) {
 
 function readHeaderString(value) {
   return typeof value === "string" && value.trim() ? value.trim() : null;
+}
+
+function readSocketAttachment(ws) {
+  if (typeof ws?.deserializeAttachment !== "function") {
+    return null;
+  }
+  try {
+    return ws.deserializeAttachment();
+  } catch {
+    return null;
+  }
+}
+
+function writeSocketAttachment(ws, attachment) {
+  if (typeof ws?.serializeAttachment === "function") {
+    ws.serializeAttachment(attachment);
+  }
 }
 
 function safeParseJSON(value) {
