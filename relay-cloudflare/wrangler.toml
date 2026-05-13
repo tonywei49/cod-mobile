@@ -1,6 +1,9 @@
 name = "gogodex-relay"
 main = "src/worker.js"
 compatibility_date = "2026-05-13"
+routes = [
+  { pattern = "codex.gotradetalk.com/*", zone_name = "gotradetalk.com" }
+]
 
 [[durable_objects.bindings]]
 name = "RELAY_SESSION"

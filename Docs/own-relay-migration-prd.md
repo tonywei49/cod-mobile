@@ -706,13 +706,15 @@ TestFlight 测试说明必须写清楚：
   - Mac -> iPhone WebSocket 转发通过
   - iPhone -> Mac WebSocket 转发通过
   - `/v1/pairing/code/resolve` 通过
+- 已在 `relay-cloudflare/wrangler.toml` 配置正式域名 route：
+  - `codex.gotradetalk.com/*`
 
 上架前必须完成：
 
 - Mac bridge 改用 Cloudflare relay 测通。
 - iPhone TestFlight 改用 Cloudflare relay 测通。
 - 确认 pairing code、trusted reconnect、bridge 重启、App 重启都正常。
-- 再将 `codex.gotradetalk.com` 从 VPS relay 切到 Cloudflare Worker。
+- 将 `codex.gotradetalk.com` 从 VPS relay 切到 Cloudflare Worker 后，立即复测 `/health`、WebSocket、pairing code 和 bridge reconnect。
 
 正式上架不能做：
 

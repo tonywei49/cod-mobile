@@ -36,6 +36,15 @@ npm run dev
 npm run deploy
 ```
 
+正式域名 route：
+
+```text
+codex.gotradetalk.com/*
+```
+
+这个 route 会让 `https://codex.gotradetalk.com` 和 `wss://codex.gotradetalk.com/relay/...`
+走 Cloudflare Worker。VPS relay 不需要立刻关，删除 Workers route 后即可回滚到原来的 origin。
+
 正式切换域名前，先用 `workers.dev` 或测试子域名跑通：
 
 1. Mac bridge 能连接 Cloudflare relay。
