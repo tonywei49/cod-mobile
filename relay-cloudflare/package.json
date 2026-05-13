@@ -1,0 +1,15 @@
+{
+  "name": "gogodex-relay-cloudflare",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "test": "node --test ./test/*.test.js",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.90.1",
+    "ws": "^8.20.1"
+  }
+}

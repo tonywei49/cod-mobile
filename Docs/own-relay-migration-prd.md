@@ -667,6 +667,52 @@ TestFlight 测试说明必须写清楚：
 - 公开说明需要用户自己的电脑运行 Codex CLI。
 - relay、bridge、App 的隐私边界写清楚。
 
+### Phase 3C-1：正式 relay 托管方案
+
+正式上架目标是不运维 VPS，所以生产 relay 不建议继续依赖腾讯轻量服务器。
+
+目标方案：
+
+- 使用 Cloudflare Workers + Durable Objects。
+- `RelaySession` Durable Object 负责单个 session 的 Mac / iPhone WebSocket 转发。
+- `RelayRegistry` Durable Object 负责 pairing code 和 trusted reconnect 索引。
+- 继续保留现有外部接口，减少 App 和 bridge 迁移成本：
+  - `GET /health`
+  - `GET /relay/{sessionId}` WebSocket upgrade
+  - `POST /v1/pairing/code/resolve`
+  - `POST /v1/trusted/session/resolve`
+- 正式域名优先继续使用 `codex.gotradetalk.com`，避免 App 和 npm bridge 同时大范围改动。
+
+当前 PoC 状态（2026-05-13）：
+
+- 已新增 `relay-cloudflare/` 独立子项目。
+- 已实现 Cloudflare Worker 入口和两个 Durable Object：
+  - `RelaySession`
+  - `RelayRegistry`
+- 已通过本地单元测试：
+  - pairing code normalization
+  - mac registration normalization
+  - trusted reconnect Ed25519 signature verification
+- 已通过本地 Wrangler dry-run。
+- 已通过本地真实 Worker relay 测试：
+  - `/health`
+  - Mac -> iPhone WebSocket 转发
+  - iPhone -> Mac WebSocket 转发
+  - `/v1/pairing/code/resolve`
+
+当前阻塞：
+
+- Cloudflare Wrangler OAuth 授权页报 `There was an error fetching accounts`，CLI 暂时无法取得部署权限。
+- 下一步建议改用 Cloudflare API Token 部署，不继续依赖 OAuth。
+
+上架前必须完成：
+
+- 部署 Cloudflare relay 到测试域名或 `workers.dev`。
+- Mac bridge 改用 Cloudflare relay 测通。
+- iPhone TestFlight 改用 Cloudflare relay 测通。
+- 确认 pairing code、trusted reconnect、bridge 重启、App 重启都正常。
+- 再将 `codex.gotradetalk.com` 从 VPS relay 切到 Cloudflare Worker。
+
 正式上架不能做：
 
 - 使用原作者 bundle id。
