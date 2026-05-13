@@ -60,7 +60,7 @@ private struct SettingsLanguageCard: View {
                 Spacer()
                 Picker("Interface language", selection: $appLanguage) {
                     ForEach(AppLanguage.allCases) { language in
-                        Text(language.titleKey).tag(language)
+                        Text(language.title).tag(language)
                     }
                 }
                 .pickerStyle(.menu)

@@ -46,22 +46,22 @@ enum AppLanguage: String, CaseIterable, Identifiable {
         }
     }
 
-    var titleKey: LocalizedStringKey {
+    var title: String {
         switch self {
         case .system:
             return "System"
         case .english:
             return "English"
         case .traditionalChinese:
-            return "Traditional Chinese"
+            return "繁體中文"
         case .japanese:
-            return "Japanese"
+            return "日本語"
         case .korean:
-            return "Korean"
+            return "한국어"
         case .spanish:
-            return "Spanish"
+            return "Español"
         case .french:
-            return "French"
+            return "Français"
         }
     }
 }
