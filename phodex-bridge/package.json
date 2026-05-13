@@ -4,8 +4,8 @@
   "description": "Local bridge between Codex and the Gogodex mobile app. Run `gogodex up` to start.",
   "main": "src/index.js",
   "bin": {
-    "gogodex": "./bin/remodex.js",
-    "remodex": "./bin/remodex.js"
+    "gogodex": "bin/remodex.js",
+    "remodex": "bin/remodex.js"
   },
   "files": [
     "bin/",
