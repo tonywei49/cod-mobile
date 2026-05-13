@@ -8,7 +8,6 @@ import SwiftUI
 
 struct TurnErrorReportCard: View {
     let message: String
-    let onReport: () -> Void
     let onDismiss: () -> Void
 
     var body: some View {
@@ -25,7 +24,6 @@ struct TurnErrorReportCard: View {
                 .multilineTextAlignment(.leading)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-            reportButton
             dismissButton
         }
         .padding(.horizontal, 12)
@@ -36,19 +34,6 @@ struct TurnErrorReportCard: View {
                 .adaptiveGlass(.regular, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
         )
         .accessibilityElement(children: .contain)
-    }
-
-    private var reportButton: some View {
-        Button {
-            HapticFeedback.shared.triggerImpactFeedback(style: .light)
-            onReport()
-        } label: {
-            Text("Report")
-                .font(AppFont.caption(weight: .medium))
-                .foregroundStyle(Color(.systemRed))
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel("Report issue")
     }
 
     private var dismissButton: some View {

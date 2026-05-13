@@ -111,14 +111,6 @@ struct TurnView: View {
                 currentWorkingDirectory: gitWorkingDirectory,
                 errorMessage: timelineFooterErrorMessage,
                 composerRecoveryAccessory: composerRecoveryAccessory,
-                onReportError: { errorMessage in
-                    openURL(AppEnvironment.feedbackMailtoURL(
-                        errorMessage: errorMessage,
-                        threadId: thread.id,
-                        isConnected: codex.isConnected,
-                        cliVersion: codex.bridgeInstalledVersion
-                    ))
-                },
                 onDismissError: {
                     codex.lastErrorMessage = nil
                 },
@@ -1491,14 +1483,7 @@ struct TurnView: View {
                 onOpenWorktreeHandoff: {
                     handleWorktreeHandoffTap(currentThread: currentThread)
                 },
-                onOpenFeedbackMail: {
-                    openURL(AppEnvironment.feedbackMailtoURL(
-                        errorMessage: codex.lastErrorMessage,
-                        threadId: thread.id,
-                        isConnected: codex.isConnected,
-                        cliVersion: codex.bridgeInstalledVersion
-                    ))
-                },
+                onOpenFeedbackMail: {},
                 onShowStatus: presentStatusSheet,
                 voiceButtonPresentation: voiceButtonPresentation,
                 isVoiceRecording: isVoiceRecording,

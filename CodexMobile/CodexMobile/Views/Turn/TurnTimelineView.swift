@@ -366,7 +366,6 @@ private struct TurnTimelineRowsSection: View {
 private struct TurnTimelineFooterContainer<Composer: View>: View {
     let hidesErrorMessage: Bool
     let errorMessage: String?
-    let onReportError: (String) -> Void
     let onDismissError: () -> Void
     let shouldShowScrollToLatestButton: Bool
     let scrollToLatestButtonLift: CGFloat
@@ -378,7 +377,6 @@ private struct TurnTimelineFooterContainer<Composer: View>: View {
             if !hidesErrorMessage, let errorMessage, !errorMessage.isEmpty {
                 TurnErrorReportCard(
                     message: errorMessage,
-                    onReport: { onReportError(errorMessage) },
                     onDismiss: onDismissError
                 )
                 .padding(.horizontal, 12)
@@ -433,7 +431,6 @@ struct TurnTimelineView<EmptyState: View, Composer: View>: View {
     let isRetryAvailable: Bool
     let errorMessage: String?
     let hidesErrorMessage: Bool
-    let onReportError: (String) -> Void
     let onDismissError: () -> Void
     let hasRemoteEarlierMessages: Bool
     let hasLocallyProjectedEarlierMessages: Bool
@@ -926,7 +923,6 @@ struct TurnTimelineView<EmptyState: View, Composer: View>: View {
         TurnTimelineFooterContainer(
             hidesErrorMessage: hidesErrorMessage,
             errorMessage: errorMessage,
-            onReportError: onReportError,
             onDismissError: onDismissError,
             shouldShowScrollToLatestButton: shouldShowScrollToLatestButton,
             scrollToLatestButtonLift: Self.scrollToLatestButtonLift,

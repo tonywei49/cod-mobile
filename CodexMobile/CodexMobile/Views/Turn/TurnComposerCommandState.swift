@@ -14,7 +14,7 @@ enum TurnComposerSlashCommand: String, Identifiable, Equatable {
     case status
     case subagents
 
-    static let allCommands: [TurnComposerSlashCommand] = [.codeReview, .compact, .feedback, .fork, .status, .subagents]
+    static let allCommands: [TurnComposerSlashCommand] = [.codeReview, .compact, .fork, .status, .subagents]
 
     var id: String { rawValue }
 
@@ -120,8 +120,10 @@ enum TurnComposerSlashCommand: String, Identifiable, Equatable {
             switch command {
             case .fork:
                 return supportsThreadFork && allowsForkCommand
-            case .codeReview, .compact, .feedback, .status, .subagents:
+            case .codeReview, .compact, .status, .subagents:
                 return true
+            case .feedback:
+                return false
             }
         }
     }
