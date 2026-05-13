@@ -10,6 +10,10 @@ enum AppLanguage: String, CaseIterable, Identifiable {
     case system
     case english
     case traditionalChinese
+    case japanese
+    case korean
+    case spanish
+    case french
 
     static let storageKey = "codex.appLanguage"
     static let defaultStoredRawValue = AppLanguage.system.rawValue
@@ -31,6 +35,14 @@ enum AppLanguage: String, CaseIterable, Identifiable {
             return "en"
         case .traditionalChinese:
             return "zh-Hant"
+        case .japanese:
+            return "ja"
+        case .korean:
+            return "ko"
+        case .spanish:
+            return "es"
+        case .french:
+            return "fr"
         }
     }
 
@@ -42,6 +54,14 @@ enum AppLanguage: String, CaseIterable, Identifiable {
             return "English"
         case .traditionalChinese:
             return "Traditional Chinese"
+        case .japanese:
+            return "Japanese"
+        case .korean:
+            return "Korean"
+        case .spanish:
+            return "Spanish"
+        case .french:
+            return "French"
         }
     }
 }

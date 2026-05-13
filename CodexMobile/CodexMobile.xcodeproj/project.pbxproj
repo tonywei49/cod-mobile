@@ -230,6 +230,7 @@
 				C6F6B5CC789F6E8003AF0A88 /* SharedResources */,
 			);
 			sourceTree = "<group>";
+			usesTabs = 0;
 		};
 		C09A76AF2F4B8D7B003B3F3A /* Products */ = {
 			isa = PBXGroup;
@@ -383,6 +384,10 @@
 			knownRegions = (
 				en,
 				"zh-Hant",
+				ja,
+				ko,
+				es,
+				fr,
 				Base,
 			);
 			mainGroup = C09A76A52F4B8D7B003B3F3A;

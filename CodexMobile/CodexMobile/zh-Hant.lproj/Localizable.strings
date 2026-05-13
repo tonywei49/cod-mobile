@@ -47,6 +47,7 @@
 "Font" = "字體";
 "Forget Pair" = "忘記配對";
 "Free" = "免費";
+"French" = "法文";
 "Free TestFlight" = "免費 TestFlight";
 "Get Started" = "開始";
 "Git from your phone" = "用手機操作 Git";
@@ -58,6 +59,7 @@
 "Here's what you'll get" = "你會獲得這些功能";
 "Here’s what you’ll get" = "你會獲得這些功能";
 "How Gogodex Works" = "Gogodex 如何運作";
+"Japanese" = "日文";
 "I Updated It" = "我已更新";
 "Info" = "資訊";
 "Install Codex CLI" = "安裝 Codex CLI";
@@ -70,6 +72,7 @@
 "Interface language" = "介面語言";
 "Invalid QR code" = "無效的 QR code";
 "Keep computer reachable" = "保持電腦可連線";
+"Korean" = "韓文";
 "Language" = "語言";
 "Latest available" = "最新可用版本";
 "Liquid Glass" = "Liquid Glass";
@@ -129,6 +132,7 @@
 "Set Up" = "設定";
 "Settings" = "設定";
 "Speed" = "速度";
+"Spanish" = "西班牙文";
 "Start New Chat" = "開始新對話";
 "Start Pairing" = "開始配對";
 "Start it again" = "重新啟動";
