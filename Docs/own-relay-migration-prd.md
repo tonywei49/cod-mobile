@@ -708,6 +708,13 @@ TestFlight 测试说明必须写清楚：
   - `/v1/pairing/code/resolve` 通过
 - 已在 `relay-cloudflare/wrangler.toml` 配置正式域名 route：
   - `codex.gotradetalk.com/*`
+- 已将 `codex.gotradetalk.com/*` 切到 Cloudflare Worker。
+- 切换后已通过正式域名复测：
+  - `GET https://codex.gotradetalk.com/health` 返回 `{"ok":true}`
+  - WebSocket Mac -> iPhone 转发通过
+  - WebSocket iPhone -> Mac 转发通过
+  - bridge 重启后状态为 `connected`
+  - 新 pairing code `JD2NBJV7SB` 可通过 `/v1/pairing/code/resolve` 解析
 
 上架前必须完成：
 
