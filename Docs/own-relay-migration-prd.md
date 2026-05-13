@@ -699,15 +699,16 @@ TestFlight 测试说明必须写清楚：
   - Mac -> iPhone WebSocket 转发
   - iPhone -> Mac WebSocket 转发
   - `/v1/pairing/code/resolve`
-
-当前阻塞：
-
-- Cloudflare Wrangler OAuth 授权页报 `There was an error fetching accounts`，CLI 暂时无法取得部署权限。
-- 下一步建议改用 Cloudflare API Token 部署，不继续依赖 OAuth。
+- 已通过 Cloudflare API Token 部署到 `workers.dev`：
+  - `https://gogodex-relay.tonywei49.workers.dev`
+- 已通过线上 Cloudflare Worker smoke test：
+  - `GET /health` 返回 `{"ok":true}`
+  - Mac -> iPhone WebSocket 转发通过
+  - iPhone -> Mac WebSocket 转发通过
+  - `/v1/pairing/code/resolve` 通过
 
 上架前必须完成：
 
-- 部署 Cloudflare relay 到测试域名或 `workers.dev`。
 - Mac bridge 改用 Cloudflare relay 测通。
 - iPhone TestFlight 改用 Cloudflare relay 测通。
 - 确认 pairing code、trusted reconnect、bridge 重启、App 重启都正常。
