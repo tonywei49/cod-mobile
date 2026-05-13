@@ -393,8 +393,6 @@ struct AboutRemodexView: View {
 
     @ViewBuilder private var footer: some View {
         VStack(spacing: 10) {
-            OpenSourceBadge(style: .dark)
-
             Text("ISC License")
                 .font(AppFont.caption())
                 .foregroundStyle(.tertiary)

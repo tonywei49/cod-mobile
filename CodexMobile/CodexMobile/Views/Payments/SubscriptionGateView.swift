@@ -348,8 +348,6 @@ struct SubscriptionGateView: View {
                     .foregroundStyle(.red.opacity(0.9))
                     .multilineTextAlignment(.center)
             }
-
-            OpenSourceBadge(style: colorScheme == .dark ? .light : .dark)
         }
         .padding(.horizontal, 24)
         .padding(.bottom, 12)
@@ -551,8 +549,6 @@ struct SubscriptionBootstrapFailureView: View {
                     }
                     .font(AppFont.caption(weight: .medium))
                     .foregroundStyle(secondaryTextColor)
-
-                    OpenSourceBadge(style: colorScheme == .dark ? .light : .dark)
                 }
                 .padding(.horizontal, 24)
                 .padding(.bottom, 20)

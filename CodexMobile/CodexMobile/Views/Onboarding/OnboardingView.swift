@@ -87,8 +87,6 @@ struct OnboardingView: View {
             .animation(.spring(response: 0.35, dampingFraction: 0.8), value: currentPage)
 
             finalPageActions
-
-            OpenSourceBadge(style: .light)
         }
         .padding(.horizontal, 24)
         .padding(.bottom, 12)

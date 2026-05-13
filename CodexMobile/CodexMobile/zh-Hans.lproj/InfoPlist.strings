@@ -1,0 +1,5 @@
+"NSCameraUsageDescription" = "Gogodex 需要相机权限，让你拍照并附加到消息中。";
+"NSLocalNetworkUsageDescription" = "Gogodex 需要本地网络权限，以连接到 Mac 上正在执行的 Codex app-server。";
+"NSMicrophoneUsageDescription" = "Gogodex 需要麦克风权限，用于录制语音笔记并进行 ChatGPT 转录。";
+"NSPhotoLibraryUsageDescription" = "Gogodex 需要照片图库权限，让你把图片附加到消息中。";
+"NSPhotoLibraryAddUsageDescription" = "Gogodex 需要照片图库权限，让你保存生成的图表和附件。";
