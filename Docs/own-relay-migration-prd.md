@@ -565,9 +565,10 @@ Release build 必须通过。
 
 TestFlight 前必须具备：
 
-- Privacy Policy。
-- Terms of Use。
-- Support email。
+- Privacy Policy：`https://codex.gotradetalk.com/privacy`。
+- Terms of Use：`https://codex.gotradetalk.com/terms`。
+- Support URL：`https://codex.gotradetalk.com/support`。
+- Support email：`tonywei49@gmail.com`。
 - 公开源码来源说明。
 - 明确说明本 App 不是 OpenAI 官方产品。
 - 明确说明需要用户自己的电脑运行 Codex CLI / bridge。

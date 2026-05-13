@@ -16,6 +16,17 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
+    if (url.pathname === "/") {
+      return redirect("/support");
+    }
+
+    if (isPublicPagePath(url.pathname)) {
+      if (request.method !== "GET" && request.method !== "HEAD") {
+        return htmlPage("Method not allowed", "<p>This page only supports GET requests.</p>", 405);
+      }
+      return publicPage(url.pathname);
+    }
+
     if (request.method === "GET" && url.pathname === "/health") {
       if (env.EXPOSE_DETAILED_HEALTH === "true") {
         const registry = registryStub(env);
@@ -41,6 +52,10 @@ export default {
 
     if (request.method === "POST" && url.pathname === "/v1/trusted/session/resolve") {
       return registryStub(env).fetch(request);
+    }
+
+    if (request.method === "GET" || request.method === "HEAD") {
+      return htmlPage("Page not found", "<p>The page you requested was not found.</p>", 404);
     }
 
     return json({ ok: false, error: "Not found" }, 404);
@@ -532,6 +547,166 @@ function json(body, status = 200) {
     headers: { "content-type": "application/json" },
   });
 }
+
+function redirect(location, status = 302) {
+  return new Response(null, {
+    status,
+    headers: { location },
+  });
+}
+
+function isPublicPagePath(pathname) {
+  return pathname === "/privacy" || pathname === "/terms" || pathname === "/support";
+}
+
+function publicPage(pathname) {
+  if (pathname === "/privacy") {
+    return htmlPage("Privacy Policy", PRIVACY_POLICY_HTML);
+  }
+  if (pathname === "/terms") {
+    return htmlPage("Terms of Use", TERMS_OF_USE_HTML);
+  }
+  return htmlPage("Support", SUPPORT_HTML);
+}
+
+function htmlPage(title, body, status = 200) {
+  const escapedTitle = escapeHTML(title);
+  return new Response(`<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${escapedTitle} | Gogodex</title>
+  <style>
+    :root { color-scheme: light dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    body { margin: 0; background: Canvas; color: CanvasText; line-height: 1.6; }
+    main { max-width: 760px; margin: 0 auto; padding: 40px 20px 56px; }
+    nav { display: flex; gap: 14px; flex-wrap: wrap; margin: 0 0 32px; font-size: 15px; }
+    a { color: #1677d2; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    h1 { font-size: 34px; line-height: 1.15; margin: 0 0 8px; }
+    h2 { font-size: 22px; margin: 34px 0 10px; }
+    p, li { font-size: 16px; }
+    ul { padding-left: 22px; }
+    .updated { color: #666; margin: 0 0 28px; }
+    .card { border: 1px solid color-mix(in srgb, CanvasText 14%, transparent); border-radius: 10px; padding: 18px; margin: 20px 0; background: color-mix(in srgb, CanvasText 4%, transparent); }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  </style>
+</head>
+<body>
+  <main>
+    <nav>
+      <a href="/support">Support</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </nav>
+    ${body}
+  </main>
+</body>
+</html>`, {
+    status,
+    headers: {
+      "content-type": "text/html; charset=utf-8",
+      "cache-control": "public, max-age=300",
+    },
+  });
+}
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "\"": "&quot;",
+    "'": "&#39;",
+  }[char]));
+}
+
+const SUPPORT_HTML = `
+<h1>Gogodex Support</h1>
+<p class="updated">Last updated: May 13, 2026</p>
+<p>Gogodex is an iOS companion app for controlling a paired Codex runtime on your own computer.</p>
+<div class="card">
+  <h2>Contact</h2>
+  <p>For support, bug reports, privacy requests, or App Store questions, email:</p>
+  <p><a href="mailto:tonywei49@gmail.com">tonywei49@gmail.com</a></p>
+</div>
+<h2>Before contacting support</h2>
+<ul>
+  <li>Make sure the computer bridge is running.</li>
+  <li>Confirm the iPhone and computer can both reach the configured relay.</li>
+  <li>If pairing expired, generate a new pairing code from the computer bridge.</li>
+  <li>If the app was in the background, return to the app and wait a few seconds for reconnect.</li>
+</ul>
+<h2>Related pages</h2>
+<ul>
+  <li><a href="/privacy">Privacy Policy</a></li>
+  <li><a href="/terms">Terms of Use</a></li>
+</ul>`;
+
+const PRIVACY_POLICY_HTML = `
+<h1>Gogodex Privacy Policy</h1>
+<p class="updated">Last updated: May 13, 2026</p>
+<p>This policy explains how Gogodex handles information when you use the app to control a Codex runtime running on your paired computer.</p>
+<h2>Overview</h2>
+<ul>
+  <li>Gogodex is designed as a local-first companion app.</li>
+  <li>Your coding work, repository actions, and workspace operations run on your paired computer.</li>
+  <li>We do not operate Gogodex user accounts or a cloud chat-history database.</li>
+  <li>We do not sell personal information or use advertising trackers.</li>
+  <li>A hosted relay may be used to help your iPhone reach your paired computer.</li>
+</ul>
+<h2>Information processed</h2>
+<ul>
+  <li>Chat messages, prompts, attachments, voice input, and workspace actions you initiate in the app.</li>
+  <li>Pairing keys, trusted-device metadata, relay session data, and reconnect metadata.</li>
+  <li>Connection metadata needed to route traffic and operate hosted relay infrastructure.</li>
+  <li>Purchase or entitlement state when paid features are enabled through Apple App Store services.</li>
+</ul>
+<h2>How information is used</h2>
+<p>Information is used to pair your iPhone with your computer, route encrypted traffic, restore trusted reconnect, operate app features, provide support, and maintain service security and reliability.</p>
+<h2>Hosted relay</h2>
+<p>The relay is a transport layer. It helps route traffic between your iPhone and paired computer and may process session identifiers, trusted-device metadata, IP address, timestamps, and route-level request data. After the secure session is active, application payloads are forwarded as encrypted traffic.</p>
+<h2>Third-party services</h2>
+<ul>
+  <li>Apple may process App Store billing, subscriptions, platform permissions, and crash or diagnostic data according to Apple's policies.</li>
+  <li>OpenAI or ChatGPT services may process requests when you explicitly use features that require them, such as voice transcription or connected Codex functionality.</li>
+  <li>RevenueCat may process subscription and entitlement data if subscription features are enabled in a distributed build.</li>
+</ul>
+<h2>Storage</h2>
+<p>Gogodex may store pairing state, trusted-device information, encrypted local history, preferences, temporary voice files, and cryptographic keys on your iPhone. Your paired computer stores and processes the Codex runtime data under your own local environment.</p>
+<h2>Choices</h2>
+<p>You can revoke camera, microphone, photo library, notification, and local network permissions in iOS Settings. You can manage subscriptions through your Apple account settings when subscriptions are available.</p>
+<h2>Contact</h2>
+<p>For privacy questions or rights requests, email <a href="mailto:tonywei49@gmail.com">tonywei49@gmail.com</a>.</p>`;
+
+const TERMS_OF_USE_HTML = `
+<h1>Gogodex Terms of Use</h1>
+<p class="updated">Last updated: May 13, 2026</p>
+<p>These Terms govern your access to and use of the Gogodex mobile application and related services.</p>
+<h2>Description</h2>
+<p>Gogodex is an iOS companion app for controlling a Codex runtime on your paired computer. The app can connect directly or through hosted relay infrastructure. Most coding, repository, and workspace operations run on your paired computer, not on the hosted relay.</p>
+<h2>Eligibility</h2>
+<p>You must be at least 13 years old, or the minimum age required in your jurisdiction, to use the app.</p>
+<h2>Pairing and security</h2>
+<p>The app pairs with your computer through a QR code or pairing-code flow and secure cryptographic session setup. You are responsible for keeping your paired devices and connected runtime secure.</p>
+<h2>Paid features</h2>
+<p>The app may offer optional paid features or subscriptions. If payment is offered through the Apple App Store, payment, renewal, cancellation, and refund handling are managed by Apple under App Store rules.</p>
+<h2>Hosted services</h2>
+<p>Gogodex may operate hosted relay and trusted reconnect services. These services route connectivity between your iPhone and paired computer. They do not run Codex for you and do not replace your paired computer runtime.</p>
+<h2>Acceptable use</h2>
+<ul>
+  <li>Do not use the app for unlawful purposes.</li>
+  <li>Do not interfere with or abuse the app, bridge, relay, or connected runtime.</li>
+  <li>Do not attempt to bypass security, entitlement, or pairing protections.</li>
+  <li>Do not use the app to infringe the rights of others.</li>
+</ul>
+<h2>Availability</h2>
+<p>The app and related services are provided on an as-is and as-available basis. We may update, change, suspend, or discontinue features, hosted relay availability, pricing, or subscription offerings.</p>
+<h2>Apple App Store</h2>
+<p>If you obtained the app through the Apple App Store, Apple's standard App Store terms and usage rules also apply. Apple is not responsible for operating or supporting Gogodex.</p>
+<h2>Contact</h2>
+<p>For questions about these Terms, email <a href="mailto:tonywei49@gmail.com">tonywei49@gmail.com</a>.</p>`;
 
 function normalizeRelayRole(headerValue) {
   return typeof headerValue === "string" ? headerValue.trim().toLowerCase() : "";

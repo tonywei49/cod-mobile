@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { generateKeyPairSync, sign } from "node:crypto";
-import { RelaySession, internals } from "../src/worker.js";
+import worker, { RelaySession, internals } from "../src/worker.js";
 
 test("normalizes short pairing codes like the Node relay", () => {
   assert.equal(internals.normalizeShortPairingCode(" abcd-2345 "), "ABCD2345");
@@ -56,6 +56,42 @@ test("verifies trusted reconnect Ed25519 signatures", async () => {
     await internals.verifyTrustedSessionResolveSignature(publicKeyBase64, transcript, Buffer.alloc(64).toString("base64")),
     false
   );
+});
+
+test("serves public App Store legal and support pages without exposing the repo", async () => {
+  for (const pathname of ["/privacy", "/terms", "/support"]) {
+    const response = await worker.fetch(new Request(`https://codex.gotradetalk.com${pathname}`), {});
+    const body = await response.text();
+
+    assert.equal(response.status, 200);
+    assert.match(response.headers.get("content-type") || "", /text\/html/);
+    assert.match(body, /Gogodex/);
+    assert.doesNotMatch(body, /github\.com\/tonywei49\/cod-mobile/i);
+  }
+});
+
+test("redirects root to the support page", async () => {
+  const response = await worker.fetch(new Request("https://codex.gotradetalk.com/"), {});
+
+  assert.equal(response.status, 302);
+  assert.equal(response.headers.get("location"), "/support");
+});
+
+test("rejects unsupported methods on public pages", async () => {
+  const response = await worker.fetch(new Request("https://codex.gotradetalk.com/privacy", {
+    method: "POST",
+  }), {});
+
+  assert.equal(response.status, 405);
+});
+
+test("serves not found as an HTML page for browser navigation", async () => {
+  const response = await worker.fetch(new Request("https://codex.gotradetalk.com/not-real"), {});
+  const body = await response.text();
+
+  assert.equal(response.status, 404);
+  assert.match(response.headers.get("content-type") || "", /text\/html/);
+  assert.match(body, /Page not found/);
 });
 
 test("accepts relay sockets through Durable Object WebSocket hibernation", async () => {

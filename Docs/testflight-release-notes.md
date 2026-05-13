@@ -176,7 +176,10 @@ Gogodex 的设计原则是 local-first。
 
 - App Store Connect 里最终使用的测试账号 / 测试 Mac 环境说明。
 - relay 域名目前使用 `codex.gotradetalk.com`；VPS 版基础健康检查、WebSocket 握手、bridge 重启恢复、relay 服务重启恢复已通过。正式上架目标是不运维 VPS，Cloudflare Workers + Durable Objects relay 已部署，并已将 `codex.gotradetalk.com/*` route 切到 Cloudflare Worker。正式域名的 `/health`、双向 WebSocket、pairing code resolve 和 Mac bridge 重启恢复已通过。下一步需要用 TestFlight 包做 iPhone 端复测。
-- 隐私政策与服务条款已有仓库内草稿：`Legal/PRIVACY_POLICY.md`、`Legal/TERMS_OF_USE.md`。正式上架前仍需要公开 URL。
+- App Store Connect 可用公开链接已规划在 Cloudflare Worker：
+  - Privacy Policy：`https://codex.gotradetalk.com/privacy`
+  - Terms of Use：`https://codex.gotradetalk.com/terms`
+  - Support URL：`https://codex.gotradetalk.com/support`
 - App 名称、主要品牌、GitHub/Open source onboarding 按钮、Settings 主要 i18n 已替换为 Gogodex。仍需最终扫一遍截图、关键词和 App Store 元数据。
 - App Review 是否需要提供演示视频，说明 Mac bridge 启动和二维码配对过程。
 - 正式上架前是否接入自己的 RevenueCat / IAP；当前 TestFlight 第一版明确不接。
