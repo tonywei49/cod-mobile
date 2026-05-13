@@ -1,0 +1,5 @@
+"NSCameraUsageDescription" = "Gogodex は、写真を撮影してメッセージに添付するためにカメラへのアクセスを必要とします。";
+"NSLocalNetworkUsageDescription" = "Gogodex は、Mac で実行中の Codex app-server に接続するためにローカルネットワークへのアクセスを必要とします。";
+"NSMicrophoneUsageDescription" = "Gogodex は、音声メモを録音して ChatGPT で文字起こしするためにマイクへのアクセスを必要とします。";
+"NSPhotoLibraryUsageDescription" = "Gogodex は、画像をメッセージに添付するために写真ライブラリへのアクセスを必要とします。";
+"NSPhotoLibraryAddUsageDescription" = "Gogodex は、生成された図表や添付ファイルを保存するために写真ライブラリへのアクセスを必要とします。";

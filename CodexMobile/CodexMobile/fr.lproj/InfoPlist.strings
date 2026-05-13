@@ -1,0 +1,5 @@
+"NSCameraUsageDescription" = "Gogodex a besoin d'accéder à l'appareil photo pour prendre des photos et les joindre à vos messages.";
+"NSLocalNetworkUsageDescription" = "Gogodex a besoin d'accéder au réseau local pour se connecter au serveur d'app Codex exécuté sur votre Mac.";
+"NSMicrophoneUsageDescription" = "Gogodex a besoin d'accéder au microphone pour enregistrer des notes vocales et les transcrire avec ChatGPT.";
+"NSPhotoLibraryUsageDescription" = "Gogodex a besoin d'accéder à la photothèque pour joindre des images à vos messages.";
+"NSPhotoLibraryAddUsageDescription" = "Gogodex a besoin d'accéder à la photothèque pour enregistrer les diagrammes générés et les pièces jointes.";
