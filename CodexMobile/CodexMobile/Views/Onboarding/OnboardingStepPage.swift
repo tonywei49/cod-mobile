@@ -142,7 +142,7 @@ struct OnboardingStepPage: View {
             icon: "qrcode.viewfinder",
             title: "Start Pairing",
             description: "Run this on your computer. A QR code will appear in your terminal — scan it next.",
-            command: "remodex up"
+            command: "gogodex up"
         )
     }
     .preferredColorScheme(.dark)

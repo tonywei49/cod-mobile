@@ -76,7 +76,7 @@ enum BridgeCLIAvailability: Equatable {
     case missing
     case broken(message: String)
 
-    static let installCommand = "npm install -g remodex@latest"
+    static let installCommand = "npm install -g gogodex@latest"
 
     var isAvailable: Bool {
         if case .available = self {

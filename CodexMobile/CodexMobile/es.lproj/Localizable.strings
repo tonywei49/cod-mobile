@@ -121,7 +121,7 @@
 "Restoring..." = "Restaurando...";
 "Retry" = "Reintentar";
 "Retry pricing" = "Reintentar precios";
-"Run remodex up" = "Ejecuta remodex up";
+"Run gogodex up" = "Ejecuta gogodex up";
 "Run this on your computer. A QR code will appear in your terminal — scan it next." = "Ejecuta esto en tu computadora. Aparecerá un código QR en el terminal; escanéalo después.";
 "Runtime defaults" = "Valores predeterminados del runtime";
 "Save" = "Guardar";

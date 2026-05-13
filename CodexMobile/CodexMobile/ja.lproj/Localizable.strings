@@ -121,7 +121,7 @@
 "Restoring..." = "復元中...";
 "Retry" = "再試行";
 "Retry pricing" = "価格を再取得";
-"Run remodex up" = "remodex up を実行";
+"Run gogodex up" = "gogodex up を実行";
 "Run this on your computer. A QR code will appear in your terminal — scan it next." = "これをコンピュータで実行してください。ターミナルに QR コードが表示されるので、次にそれをスキャンします。";
 "Runtime defaults" = "ランタイム既定値";
 "Save" = "保存";

@@ -121,7 +121,7 @@
 "Restoring..." = "복원 중...";
 "Retry" = "다시 시도";
 "Retry pricing" = "가격 다시 불러오기";
-"Run remodex up" = "remodex up 실행";
+"Run gogodex up" = "gogodex up 실행";
 "Run this on your computer. A QR code will appear in your terminal — scan it next." = "이 명령을 컴퓨터에서 실행하세요. 터미널에 QR 코드가 나타나면 다음에 스캔하세요.";
 "Runtime defaults" = "런타임 기본값";
 "Save" = "저장";

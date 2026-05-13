@@ -98,7 +98,7 @@ struct QRScannerView: View {
                         .foregroundStyle(.white.opacity(0.7))
 
                     bridgeUpdateStep(number: "1", title: "Update Gogodex", detail: command, showsCopyButton: true)
-                    bridgeUpdateStep(number: "2", title: "Start it again", detail: "Run remodex up")
+                    bridgeUpdateStep(number: "2", title: "Start it again", detail: "Run gogodex up")
                     bridgeUpdateStep(number: "3", title: "Make a new QR code", detail: "Use the new QR shown in the terminal")
                     bridgeUpdateStep(number: "4", title: "Come back here", detail: "Then scan the new QR code from the iPhone")
                 } else {

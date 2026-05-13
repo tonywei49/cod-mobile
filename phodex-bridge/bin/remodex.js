@@ -58,7 +58,7 @@ async function main({
 
   if (command === "up") {
     if (platform === "darwin") {
-      consoleImpl.log("[remodex] Starting bridge and pairing QR...");
+      consoleImpl.log("[gogodex] Starting bridge and pairing QR...");
       const result = await deps.startMacOSBridgeService({
         waitForPairing: true,
       });
@@ -99,7 +99,7 @@ async function main({
         plistPath: result?.plistPath,
         pairingSession: result?.pairingSession,
       },
-      message: "[remodex] macOS bridge service is running.",
+      message: "[gogodex] macOS bridge service is running.",
       jsonOutput,
       consoleImpl,
     });
@@ -123,7 +123,7 @@ async function main({
         plistPath: result?.plistPath,
         pairingSession: result?.pairingSession,
       },
-      message: "[remodex] macOS bridge service restarted.",
+      message: "[gogodex] macOS bridge service restarted.",
       jsonOutput,
       consoleImpl,
     });
@@ -142,7 +142,7 @@ async function main({
         ok: true,
         currentVersion: version,
       },
-      message: "[remodex] macOS bridge service stopped.",
+      message: "[gogodex] macOS bridge service stopped.",
       jsonOutput,
       consoleImpl,
     });
@@ -176,7 +176,7 @@ async function main({
             currentVersion: version,
             platform: "darwin",
           },
-          message: "[remodex] Stopped the macOS bridge service and cleared the saved pairing state. Run `remodex up` to pair again.",
+          message: "[gogodex] Stopped the macOS bridge service and cleared the saved pairing state. Run `gogodex up` to pair again.",
           jsonOutput,
           consoleImpl,
         });
@@ -188,13 +188,13 @@ async function main({
             currentVersion: version,
             platform,
           },
-          message: "[remodex] Cleared the saved pairing state. Run `remodex up` to pair again.",
+          message: "[gogodex] Cleared the saved pairing state. Run `gogodex up` to pair again.",
           jsonOutput,
           consoleImpl,
         });
       }
     } catch (error) {
-      consoleImpl.error(`[remodex] ${(error && error.message) || "Failed to clear the saved pairing state."}`);
+      consoleImpl.error(`[gogodex] ${(error && error.message) || "Failed to clear the saved pairing state."}`);
       exitImpl(1);
     }
     return;
@@ -210,12 +210,12 @@ async function main({
           threadId: state.threadId,
           source: state.source || "unknown",
         },
-        message: `[remodex] Opened last active thread: ${state.threadId} (${state.source || "unknown"})`,
+        message: `[gogodex] Opened last active thread: ${state.threadId} (${state.source || "unknown"})`,
         jsonOutput,
         consoleImpl,
       });
     } catch (error) {
-      consoleImpl.error(`[remodex] ${(error && error.message) || "Failed to reopen the last thread."}`);
+      consoleImpl.error(`[gogodex] ${(error && error.message) || "Failed to reopen the last thread."}`);
       exitImpl(1);
     }
     return;
@@ -225,7 +225,7 @@ async function main({
     try {
       deps.watchThreadRollout(watchThreadId);
     } catch (error) {
-      consoleImpl.error(`[remodex] ${(error && error.message) || "Failed to watch the thread rollout."}`);
+      consoleImpl.error(`[gogodex] ${(error && error.message) || "Failed to watch the thread rollout."}`);
       exitImpl(1);
     }
     return;
@@ -233,8 +233,8 @@ async function main({
 
   consoleImpl.error(`Unknown command: ${command}`);
   consoleImpl.error(
-    "Usage: remodex up | remodex run | remodex start | remodex restart | remodex stop | remodex status | "
-    + "remodex reset-pairing | remodex resume | remodex watch [threadId] | remodex --version | "
+    "Usage: gogodex up | gogodex run | gogodex start | gogodex restart | gogodex stop | gogodex status | "
+    + "gogodex reset-pairing | gogodex resume | gogodex watch [threadId] | gogodex --version | "
     + "append --json to start/restart/stop/status/reset-pairing/resume for machine-readable output"
   );
   exitImpl(1);
@@ -301,7 +301,7 @@ function assertMacOSCommand(name, {
     return;
   }
 
-  consoleImpl.error(`[remodex] \`${name}\` is only available on macOS. Use \`remodex up\` or \`remodex run\` for the foreground bridge on this OS.`);
+  consoleImpl.error(`[gogodex] \`${name}\` is only available on macOS. Use \`gogodex up\` or \`gogodex run\` for the foreground bridge on this OS.`);
   exitImpl(1);
 }
 

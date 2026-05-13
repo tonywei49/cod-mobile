@@ -1,5 +1,5 @@
 // FILE: BridgeControlService.swift
-// Purpose: Wraps the existing remodex/npm shell commands so the menu bar app can detect the global CLI and control the bridge.
+// Purpose: Wraps the existing gogodex/npm shell commands so the menu bar app can detect the global CLI and control the bridge.
 // Layer: Companion app service
 // Exports: BridgeControlService, ShellCommandRunner
 // Depends on: Foundation, BridgeControlModels
@@ -8,11 +8,11 @@ import Foundation
 
 struct BridgeCLIInvocation {
     let nodePath: String
-    let remodexPath: String
+    let cliPath: String
 
     // Executes the actual CLI entrypoint via an absolute Node binary so GUI PATH drift does not break nvm installs.
     func command(_ arguments: [String]) -> String {
-        ([shellQuoted(nodePath), shellQuoted(remodexPath)] + arguments).joined(separator: " ")
+        ([shellQuoted(nodePath), shellQuoted(cliPath)] + arguments).joined(separator: " ")
     }
 }
 
@@ -107,7 +107,7 @@ final class BridgeControlService {
         self.runner = runner
     }
 
-    // Confirms the product contract for this companion: a global `remodex` CLI must be runnable first.
+    // Confirms the product contract for this companion: a global bridge CLI must be runnable first.
     func detectCLIAvailability() async -> BridgeCLIAvailability {
         do {
             let invocation = try await resolveCLIInvocation()
@@ -173,16 +173,16 @@ final class BridgeControlService {
     }
 
     func updateBridgePackage() async throws {
-        _ = try await runner.run(command: "npm install -g remodex@latest")
+        _ = try await runner.run(command: "npm install -g gogodex@latest")
     }
 
     func fetchLatestPackageVersion() async -> Result<String, Error> {
         do {
-            let result = try await runner.run(command: "npm view remodex version --json")
+            let result = try await runner.run(command: "npm view gogodex version --json")
             let latestVersion = parseLatestVersion(result.stdout)
             guard let latestVersion else {
                 throw BridgeControlError.commandFailed(
-                    command: "npm view remodex version --json",
+                    command: "npm view gogodex version --json",
                     message: "npm returned an unreadable version."
                 )
             }
@@ -249,9 +249,17 @@ final class BridgeControlService {
 
     // Resolves both the CLI script and the Node runtime from stable absolute paths before the menu bar invokes them.
     private func resolveCLIInvocation() async throws -> BridgeCLIInvocation {
-        let remodexPath = try await resolveExecutable(named: "remodex")
-        let nodePath = try await resolveNodePath(for: remodexPath)
-        return BridgeCLIInvocation(nodePath: nodePath, remodexPath: remodexPath)
+        let cliPath = try await resolveBridgeExecutable()
+        let nodePath = try await resolveNodePath(for: cliPath)
+        return BridgeCLIInvocation(nodePath: nodePath, cliPath: cliPath)
+    }
+
+    private func resolveBridgeExecutable() async throws -> String {
+        if let gogodexPath = try? await resolveExecutable(named: "gogodex") {
+            return gogodexPath
+        }
+
+        return try await resolveExecutable(named: "remodex")
     }
 
     private func parseStatusLines(_ output: String) -> [String: String] {
@@ -259,7 +267,7 @@ final class BridgeControlService {
             .split(separator: "\n", omittingEmptySubsequences: true)
             .reduce(into: [String: String]()) { partialResult, line in
                 let cleaned = line.trimmingCharacters(in: .whitespacesAndNewlines)
-                let prefix = "[remodex] "
+                let prefix = cleaned.hasPrefix("[gogodex] ") ? "[gogodex] " : "[remodex] "
                 guard cleaned.hasPrefix(prefix) else {
                     return
                 }
@@ -309,19 +317,19 @@ final class BridgeControlService {
     }
 
     // Prefers the Node runtime sitting next to the resolved CLI binary so mixed installs stay compatible.
-    private func resolveNodePath(for remodexPath: String) async throws -> String {
-        if let colocatedNodePath = resolveColocatedNodePath(for: remodexPath) {
+    private func resolveNodePath(for cliPath: String) async throws -> String {
+        if let colocatedNodePath = resolveColocatedNodePath(for: cliPath) {
             return colocatedNodePath
         }
 
         return try await resolveExecutable(named: "node")
     }
 
-    private func resolveColocatedNodePath(for remodexPath: String) -> String? {
-        let remodexURL = URL(fileURLWithPath: remodexPath)
+    private func resolveColocatedNodePath(for cliPath: String) -> String? {
+        let cliURL = URL(fileURLWithPath: cliPath)
         let candidateDirectories = [
-            remodexURL.deletingLastPathComponent().path,
-            remodexURL.resolvingSymlinksInPath().deletingLastPathComponent().path,
+            cliURL.deletingLastPathComponent().path,
+            cliURL.resolvingSymlinksInPath().deletingLastPathComponent().path,
         ]
 
         var seenDirectories = Set<String>()

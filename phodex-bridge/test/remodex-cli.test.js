@@ -57,7 +57,7 @@ test("remodex restart reuses the macOS service start flow", async () => {
     ["start-service", { waitForPairing: false }],
   ]);
   assert.deepEqual(messages, [
-    "[remodex] macOS bridge service restarted.",
+    "[gogodex] macOS bridge service restarted.",
   ]);
 });
 
@@ -93,7 +93,7 @@ test("remodex up shows a startup indicator while waiting for the pairing QR", as
   });
 
   assert.deepEqual(messages, [
-    "[remodex] Starting bridge and pairing QR...",
+    "[gogodex] Starting bridge and pairing QR...",
   ]);
   assert.deepEqual(calls, [
     ["start-service", { waitForPairing: true }],

@@ -168,7 +168,7 @@ If you use a shared-domain subpath, make sure your reverse proxy strips the pref
 On the Mac that runs the bridge:
 
 ```sh
-REMODEX_RELAY="wss://relay.example.com/relay" remodex up
+REMODEX_RELAY="wss://relay.example.com/relay" gogodex up
 ```
 
 If you are running the source-checkout launcher behind a tunnel or reverse proxy that forwards to the local relay, pass that public URL directly to the launcher:
@@ -198,7 +198,7 @@ After the first successful scan:
 
 Today, that background-service path is built in for macOS. If you self-host against a non-macOS bridge, pairing and relay routing still work, but you must manage persistence/background service behavior yourself.
 
-If you install the bridge from npm and do not use the local launcher, make sure you export `REMODEX_RELAY` before running `remodex up`.
+If you install the bridge from npm and do not use the local launcher, make sure you export `REMODEX_RELAY` before running `gogodex up`.
 
 ## Push Notifications
 

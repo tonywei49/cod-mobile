@@ -609,7 +609,7 @@ private struct SubscriptionMacLoginInfoSheet: View {
 
                     infoStep(
                         number: 3,
-                        title: "Run remodex up",
+                        title: "Run gogodex up",
                         body: "The bridge prints a QR code. Scan that QR from the iPhone app after you have Pro access."
                     )
                 }

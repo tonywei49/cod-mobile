@@ -148,9 +148,9 @@ final class CodexGPTAccountTests: XCTestCase {
         XCTAssertEqual(service.latestBridgePackageVersion, "1.4.0")
         XCTAssertEqual(
             service.bridgeUpdatePrompt?.title,
-            "A newer Remodex update is available on your Mac"
+            "A newer Gogodex update is available on your computer"
         )
-        XCTAssertEqual(service.bridgeUpdatePrompt?.command, "npm install -g remodex@latest")
+        XCTAssertEqual(service.bridgeUpdatePrompt?.command, "npm install -g gogodex@latest")
         XCTAssertEqual(service.gptAccountSnapshot.status, .unknown)
     }
 
@@ -245,7 +245,7 @@ final class CodexGPTAccountTests: XCTestCase {
         XCTAssertEqual(service.latestBridgePackageVersion, "1.4.0")
         XCTAssertEqual(
             service.bridgeUpdatePrompt?.title,
-            "A newer Remodex update is available on your Mac"
+            "A newer Gogodex update is available on your computer"
         )
     }
 

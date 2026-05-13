@@ -48,7 +48,7 @@ Remodex 现在的架构本来就是 local-first：
 第一阶段只有全部满足下面条件，才算完成：
 
 - 我们的 relay 上 `GET /health` 返回 `{"ok":true}`。
-- `remodex up` 启动时明确设置了 `REMODEX_RELAY`，并指向我们自己的 relay URL。
+- `gogodex up` 启动时明确设置了 `REMODEX_RELAY`，并指向我们自己的 relay URL。
 - bridge 打印出来的配对 QR 里包含我们自己的 relay URL。
 - iPhone App 扫 QR 后能完成 secure pairing。
 - 手机端发出的 prompt 能到达 Mac bridge，并启动 Codex turn。
@@ -110,7 +110,7 @@ codex app-server
 REMODEX_RELAY="wss://owner-relay.example.com/relay" \
 REMODEX_REFRESH_ENABLED=true \
 REMODEX_REFRESH_MODE=completion \
-remodex up
+gogodex up
 ```
 
 如果从当前源码目录运行：
@@ -126,7 +126,7 @@ node ./bin/remodex.js up
 
 注意：
 
-- `remodex up` 在 macOS 上会写入 `~/Library/LaunchAgents/com.remodex.bridge.plist`，并通过 `launchd` 启动后台 bridge。
+- `gogodex up` 在 macOS 上会写入 `~/Library/LaunchAgents/com.remodex.bridge.plist`，并通过 `launchd` 启动后台 bridge。
 - 不要把 `node ./bin/remodex.js run` 当成最终方案；它只适合临时调试，终端或 Codex 会话结束后 bridge 会停，手机端就会 offline。
 - `REMODEX_REFRESH_ENABLED=true` 必须显式开启。Codex.app 目前不会自动 live-reload 外部 app-server 写入的 session，Remodex 默认关闭刷新 workaround。
 - `REMODEX_REFRESH_MODE=completion` 是第一阶段默认要求：手机端消息完成后再刷新桌面，避免 `live` 模式在手机刚发送时就反复 deep link 桌面，导致桌面端输入或输出被打断。
@@ -417,7 +417,7 @@ PHODEX_DEFAULT_RELAY_URL = wss:/$()/codex.gotradetalk.com/relay
 
 bridge 也不能把真实 relay 写进源码默认值。
 
-当前 fork 的 npm 包身份使用 `gogodex`，但 CLI 命令先继续保留 `remodex`。这样可以先切断原作者 npm 更新提示，又不破坏现有 `remodex up`、launchd 服务和本机脚本。
+当前 fork 的 npm 包身份使用 `gogodex`，CLI 新命令也使用 `gogodex up`。为了兼容旧脚本，npm `bin` 仍保留 `remodex` alias，但新用户界面和文档默认只展示 `gogodex`。
 
 可选的私有 npm 包构建方式：
 
@@ -431,13 +431,13 @@ REMODEX_PACKAGE_DEFAULT_RELAY_URL="wss://codex.gotradetalk.com/relay" npm pack
 如果只是本机运行，优先继续使用：
 
 ```bash
-REMODEX_RELAY="wss://codex.gotradetalk.com/relay" remodex up
+REMODEX_RELAY="wss://codex.gotradetalk.com/relay" gogodex up
 ```
 
 验收重点：
 
 - 公开源码里搜索不到真实 relay 域名。
-- bridge `package.json` 的包名是 `gogodex`，手机端更新指令不再提示 `npm install -g remodex@latest`。
+- bridge `package.json` 的包名是 `gogodex`，手机端更新指令不再提示 `npm install -g remodex@latest`，启动指令默认显示 `gogodex up`。
 - 本机 iOS Debug build 能读到 `PrivateOverrides.xcconfig` 的默认 relay。
 - 私有 npm 包或本机 daemon 能明确指向自有 relay。
 - 没有任何作者 relay 的隐藏 fallback。
@@ -703,7 +703,7 @@ npm test
 REMODEX_RELAY="wss://owner-relay.example.com/relay" \
 REMODEX_REFRESH_ENABLED=true \
 REMODEX_REFRESH_MODE=completion \
-remodex up
+gogodex up
 ```
 
 手动检查：

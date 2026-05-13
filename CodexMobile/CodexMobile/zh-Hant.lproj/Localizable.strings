@@ -121,7 +121,7 @@
 "Restoring..." = "恢復中...";
 "Retry" = "重試";
 "Retry pricing" = "重試取得價格";
-"Run remodex up" = "執行 remodex up";
+"Run gogodex up" = "執行 gogodex up";
 "Run this on your computer. A QR code will appear in your terminal — scan it next." = "在電腦上執行這個指令。終端機會出現 QR code，下一步用手機掃描。";
 "Runtime defaults" = "執行預設值";
 "Save" = "儲存";
